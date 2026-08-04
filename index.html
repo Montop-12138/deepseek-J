@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>DeepSeek 智能助手</title>
+    <!-- 引入腾讯云开发 SDK -->
+    <script src="https://web.sdk.qcloud.com/cloudbase/v1.6.0/cloudbase.full.js"></script>
     <style>
         * {
             margin: 0;
@@ -58,7 +60,6 @@
         .btn-new:active {
             opacity: 0.7;
         }
-
         .api-section {
             display: flex;
             gap: 6px;
@@ -94,7 +95,6 @@
         .api-section button:active {
             opacity: 0.7;
         }
-
         .control-bar {
             display: flex;
             flex-wrap: wrap;
@@ -163,8 +163,6 @@
         .control-bar .rename-group button:active {
             opacity: 0.7;
         }
-
-        /* 分享/复制工具栏 */
         .share-bar {
             display: flex;
             gap: 6px;
@@ -216,7 +214,6 @@
             height: 16px;
             cursor: pointer;
         }
-
         .session-bar {
             display: flex;
             gap: 6px;
@@ -284,7 +281,6 @@
         .btn-add-session:active {
             opacity: 0.7;
         }
-
         .chat-box {
             flex: 1;
             background: white;
@@ -342,8 +338,6 @@
         .message-wrapper .msg-actions .edit-msg-btn:hover {
             background: #dbe4fe;
         }
-
-        /* 选择模式 */
         .message-wrapper.select-mode .msg-actions {
             display: none !important;
         }
@@ -363,7 +357,6 @@
         .message-wrapper.select-mode .message {
             flex: 1;
         }
-
         .message {
             max-width: 85%;
             padding: 8px 14px;
@@ -408,7 +401,6 @@
             from { opacity: 0; transform: translateY(6px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
         .message.edit-mode .message-content {
             display: none;
         }
@@ -459,7 +451,6 @@
         .message .edit-actions .cancel-edit:active {
             opacity: 0.7;
         }
-
         .input-section {
             display: flex;
             gap: 6px;
@@ -534,6 +525,33 @@
                 padding-bottom: max(12px, env(safe-area-inset-bottom));
             }
         }
+        /* 同步状态指示器 */
+        .sync-status {
+            font-size: 11px;
+            color: #9aa3b2;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 0;
+        }
+        .sync-status .sync-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10b981;
+        }
+        .sync-status .sync-dot.syncing {
+            background: #f59e0b;
+            animation: pulse 1s infinite;
+        }
+        .sync-status .sync-dot.error {
+            background: #dc2626;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
     </style>
 </head>
 <body>
@@ -565,7 +583,6 @@
         </div>
     </div>
 
-    <!-- 分享/复制工具栏 -->
     <div class="share-bar">
         <button class="btn-copy" id="copyLastBtn">📋 复制最后回复</button>
         <button class="btn-copy-all" id="copyAllBtn">📄 复制全部对话</button>
@@ -582,7 +599,13 @@
 
     <div class="chat-box" id="chatBox"></div>
 
-    <div class="status-tip" id="statusTip">💡 模型: DeepSeek-V4-Flash | 已就绪</div>
+    <div class="status-tip" id="statusTip">
+        <span class="sync-status" id="syncStatus">
+            <span class="sync-dot" id="syncDot"></span>
+            <span id="syncText">已同步</span>
+        </span>
+        💡 模型: DeepSeek-V4-Flash | 已就绪
+    </div>
 
     <div class="input-section">
         <textarea id="userInput" rows="1" placeholder="输入消息..." disabled></textarea>
@@ -592,6 +615,153 @@
     <div class="toast" id="toast"></div>
 
     <script>
+        // ============================================================
+        //  配置
+        // ============================================================
+        const ENV_ID = 'deepseek-chat-d5gg0748z3b9dfe24';
+
+        // ============================================================
+        //  初始化 CloudBase
+        // ============================================================
+        const app = cloudbase.init({
+            env: ENV_ID
+        });
+
+        const db = app.database();
+        const _ = db.command;
+
+        let currentUser = null;
+
+        // ============================================================
+        //  数据层
+        // ============================================================
+        const COLLECTION = 'sessions';
+
+        // 确保集合存在（CloudBase 会自动创建）
+        async function initDatabase() {
+            try {
+                // 尝试读取一条数据来验证集合是否存在
+                await db.collection(COLLECTION).limit(1).get();
+            } catch (e) {
+                // 如果集合不存在，创建它
+                try {
+                    await db.createCollection(COLLECTION);
+                    console.log('✅ 集合创建成功');
+                } catch (err) {
+                    console.log('集合可能已存在或需要手动创建');
+                }
+            }
+        }
+
+        // ============================================================
+        //  用户管理
+        // ============================================================
+        async function getOrCreateUser() {
+            try {
+                // 尝试匿名登录
+                const auth = app.auth();
+                const loginState = await auth.getLoginState();
+
+                if (loginState) {
+                    currentUser = loginState.user;
+                    console.log('✅ 用户已登录:', currentUser.uid);
+                    return currentUser;
+                }
+
+                // 匿名登录
+                await auth.anonymousAuthProvider().signIn();
+                const newState = await auth.getLoginState();
+                currentUser = newState.user;
+                console.log('✅ 匿名登录成功:', currentUser.uid);
+                return currentUser;
+            } catch (e) {
+                console.error('❌ 登录失败:', e);
+                showToast('⚠️ 云端连接失败，数据将保存在本地');
+                return null;
+            }
+        }
+
+        // ============================================================
+        //  同步函数
+        // ============================================================
+        async function syncSessionsToCloud(sessionsData) {
+            if (!currentUser) return false;
+
+            try {
+                const collection = db.collection(COLLECTION);
+                // 先删除用户的所有旧数据
+                await collection.where({
+                    userId: currentUser.uid
+                }).remove();
+
+                // 批量插入新数据
+                const batch = [];
+                for (const session of sessionsData) {
+                    batch.push({
+                        userId: currentUser.uid,
+                        sessionId: session.id,
+                        name: session.name || '新对话',
+                        messages: session.messages || [],
+                        updatedAt: new Date().toISOString()
+                    });
+                }
+
+                if (batch.length > 0) {
+                    await collection.add(batch);
+                }
+
+                console.log('✅ 数据已同步到云端');
+                updateSyncStatus('已同步', '');
+                return true;
+            } catch (e) {
+                console.error('❌ 同步失败:', e);
+                updateSyncStatus('同步失败', 'error');
+                return false;
+            }
+        }
+
+        async function loadSessionsFromCloud() {
+            if (!currentUser) return null;
+
+            try {
+                const collection = db.collection(COLLECTION);
+                const result = await collection.where({
+                    userId: currentUser.uid
+                }).get();
+
+                if (result.data && result.data.length > 0) {
+                    const sessions = result.data.map(item => ({
+                        id: item.sessionId,
+                        name: item.name || '新对话',
+                        messages: item.messages || []
+                    }));
+                    console.log('✅ 从云端加载了', sessions.length, '个会话');
+                    updateSyncStatus('已同步', '');
+                    return sessions;
+                }
+                return null;
+            } catch (e) {
+                console.error('❌ 加载云端数据失败:', e);
+                updateSyncStatus('加载失败', 'error');
+                return null;
+            }
+        }
+
+        // ============================================================
+        //  同步状态指示器
+        // ============================================================
+        function updateSyncStatus(text, status) {
+            const dot = document.getElementById('syncDot');
+            const textEl = document.getElementById('syncText');
+            textEl.textContent = text;
+            dot.className = 'sync-dot';
+            if (status === 'syncing') {
+                dot.classList.add('syncing');
+            } else if (status === 'error') {
+                dot.classList.add('error');
+            }
+        }
+
         // ============================================================
         //  DOM 引用
         // ============================================================
@@ -610,7 +780,6 @@
         const renameInput = document.getElementById('renameInput');
         const renameBtn = document.getElementById('renameBtn');
 
-        // 分享/复制
         const copyLastBtn = document.getElementById('copyLastBtn');
         const copyAllBtn = document.getElementById('copyAllBtn');
         const exportBtn = document.getElementById('exportBtn');
@@ -639,6 +808,7 @@
         let sessions = [];
         let currentSessionId = null;
         let API_KEY = localStorage.getItem('deepseek_api_key') || '';
+        let isCloudReady = false;
 
         const STORAGE_KEY_SESSIONS = 'deepseek_sessions';
         const STORAGE_KEY_CURRENT = 'deepseek_current_session';
@@ -669,10 +839,17 @@
             };
         }
 
-        function saveSessions() {
+        async function saveSessions() {
+            // 保存到 localStorage
             localStorage.setItem(STORAGE_KEY_SESSIONS, JSON.stringify(sessions));
             if (currentSessionId) {
                 localStorage.setItem(STORAGE_KEY_CURRENT, currentSessionId);
+            }
+
+            // 同步到云端
+            if (isCloudReady && currentUser) {
+                updateSyncStatus('同步中...', 'syncing');
+                await syncSessionsToCloud(sessions);
             }
         }
 
@@ -699,13 +876,32 @@
             }
         }
 
+        async function loadFromCloudAndMerge() {
+            const cloudData = await loadSessionsFromCloud();
+            if (cloudData && cloudData.length > 0) {
+                // 比较云端和本地，取最新版本
+                // 简单策略：云端有数据就用云端的
+                sessions = cloudData;
+                const savedCurrent = localStorage.getItem(STORAGE_KEY_CURRENT);
+                if (savedCurrent && sessions.some(s => s.id === savedCurrent)) {
+                    currentSessionId = savedCurrent;
+                } else {
+                    currentSessionId = sessions[0].id;
+                }
+                // 同时更新 localStorage
+                localStorage.setItem(STORAGE_KEY_SESSIONS, JSON.stringify(sessions));
+                localStorage.setItem(STORAGE_KEY_CURRENT, currentSessionId);
+                return true;
+            }
+            return false;
+        }
+
         function getCurrentSession() {
             return sessions.find(s => s.id === currentSessionId) || sessions[0];
         }
 
         function switchSession(sessionId) {
             if (sessionId === currentSessionId) return;
-            // 退出选择模式
             exitSelectMode();
             currentSessionId = sessionId;
             localStorage.setItem(STORAGE_KEY_CURRENT, currentSessionId);
@@ -871,223 +1067,4 @@
             selectModeBtn.textContent = '☑️ 选择模式';
             selectModeBtn.classList.remove('active');
             selectInfo.style.display = 'none';
-            renderChat();
-        }
-
-        function toggleSelectMessage(index) {
-            if (!selectMode) return;
-            const session = getCurrentSession();
-            if (!session) return;
-            const msg = session.messages[index];
-            if (msg.role === 'error' || msg.role === 'loading') return;
-            if (selectedIndices.has(index)) {
-                selectedIndices.delete(index);
-            } else {
-                selectedIndices.add(index);
-            }
-            updateSelectedCount();
-            renderChat();
-        }
-
-        function updateSelectedCount() {
-            selectedCount.textContent = '已选 ' + selectedIndices.size + ' 条';
-            const session = getCurrentSession();
-            if (session) {
-                const total = session.messages.filter(m => m.role !== 'error' && m.role !== 'loading').length;
-                selectAllCheckbox.checked = selectedIndices.size === total && total > 0;
-            }
-        }
-
-        function selectAllMessages() {
-            const session = getCurrentSession();
-            if (!session) return;
-            const allChecked = selectAllCheckbox.checked;
-            selectedIndices.clear();
-            if (allChecked) {
-                session.messages.forEach((msg, idx) => {
-                    if (msg.role !== 'error' && msg.role !== 'loading') {
-                        selectedIndices.add(idx);
-                    }
-                });
-            }
-            updateSelectedCount();
-            renderChat();
-        }
-
-        function getSelectedText() {
-            const session = getCurrentSession();
-            if (!session) return '';
-            const sorted = Array.from(selectedIndices).sort((a, b) => a - b);
-            let text = '📝 ' + session.name + '\n' + '='.repeat(40) + '\n\n';
-            sorted.forEach(idx => {
-                const msg = session.messages[idx];
-                if (msg) {
-                    const label = msg.role === 'user' ? '👤 用户' : '🤖 AI';
-                    text += '【' + label + '】\n' + msg.content + '\n\n';
-                }
-            });
-            return text;
-        }
-
-        function getAllText() {
-            const session = getCurrentSession();
-            if (!session) return '';
-            let text = '📝 ' + session.name + '\n' + '='.repeat(40) + '\n\n';
-            session.messages.forEach(msg => {
-                if (msg.role === 'error' || msg.role === 'loading') return;
-                const label = msg.role === 'user' ? '👤 用户' : '🤖 AI';
-                text += '【' + label + '】\n' + msg.content + '\n\n';
-            });
-            return text;
-        }
-
-        function getLastReply() {
-            const session = getCurrentSession();
-            if (!session) return '';
-            for (let i = session.messages.length - 1; i >= 0; i--) {
-                if (session.messages[i].role === 'assistant') {
-                    return session.messages[i].content;
-                }
-            }
-            return '';
-        }
-
-        function copyToClipboard(text) {
-            if (!text) {
-                showToast('没有内容可复制');
-                return;
-            }
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(text).then(() => {
-                    showToast('✅ 已复制到剪贴板');
-                }).catch(() => {
-                    fallbackCopy(text);
-                });
-            } else {
-                fallbackCopy(text);
-            }
-        }
-
-        function fallbackCopy(text) {
-            const textarea = document.createElement('textarea');
-            textarea.value = text;
-            document.body.appendChild(textarea);
-            textarea.select();
-            try {
-                document.execCommand('copy');
-                showToast('✅ 已复制到剪贴板');
-            } catch (e) {
-                showToast('❌ 复制失败，请手动选择复制');
-            }
-            document.body.removeChild(textarea);
-        }
-
-        // ============================================================
-        //  渲染
-        // ============================================================
-        function renderSessionTabs() {
-            sessionBar.innerHTML = '';
-            sessions.forEach(s => {
-                const btn = document.createElement('button');
-                btn.className = 'session-tab' + (s.id === currentSessionId ? ' active' : '');
-                const nameSpan = document.createElement('span');
-                nameSpan.textContent = s.name || '新对话';
-                btn.appendChild(nameSpan);
-                if (sessions.length > 1) {
-                    const del = document.createElement('button');
-                    del.className = 'del-session';
-                    del.textContent = '✕';
-                    del.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        deleteSession(s.id);
-                    });
-                    btn.appendChild(del);
-                }
-                btn.addEventListener('click', () => {
-                    switchSession(s.id);
-                });
-                sessionBar.appendChild(btn);
-            });
-            const addBtn = document.createElement('button');
-            addBtn.className = 'btn-add-session';
-            addBtn.textContent = '+';
-            addBtn.addEventListener('click', addNewSession);
-            sessionBar.appendChild(addBtn);
-        }
-
-        function renderChat() {
-            const session = getCurrentSession();
-            chatBox.innerHTML = '';
-            if (!session || session.messages.length === 0) {
-                const div = document.createElement('div');
-                div.className = 'message assistant';
-                if (API_KEY) {
-                    div.textContent = '👋 开始新对话吧！输入消息开始聊天。';
-                } else {
-                    div.textContent = '👋 请先在上方输入你的 API Key 开始对话。';
-                }
-                chatBox.appendChild(div);
-                return;
-            }
-            session.messages.forEach((msg, index) => {
-                const wrapper = document.createElement('div');
-                wrapper.className = 'message-wrapper';
-                if (msg.role === 'user') {
-                    wrapper.classList.add('user-wrapper');
-                }
-                if (selectMode && msg.role !== 'error' && msg.role !== 'loading') {
-                    wrapper.classList.add('select-mode');
-                }
-
-                // 选择框
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.className = 'msg-checkbox';
-                checkbox.checked = selectedIndices.has(index);
-                checkbox.addEventListener('change', (e) => {
-                    e.stopPropagation();
-                    toggleSelectMessage(index);
-                });
-                wrapper.appendChild(checkbox);
-
-                const div = document.createElement('div');
-                div.className = 'message ' + msg.role;
-                if (msg.role === 'error') {
-                    div.innerHTML = msg.content.replace(/\n/g, '<br>');
-                } else {
-                    const contentSpan = document.createElement('span');
-                    contentSpan.className = 'message-content';
-                    contentSpan.innerHTML = msg.content.replace(/\n/g, '<br>');
-                    div.appendChild(contentSpan);
-
-                    const textarea = document.createElement('textarea');
-                    textarea.className = 'edit-textarea';
-                    textarea.rows = 3;
-                    textarea.value = msg.content;
-                    div.appendChild(textarea);
-
-                    const editActions = document.createElement('div');
-                    editActions.className = 'edit-actions';
-                    const saveBtn = document.createElement('button');
-                    saveBtn.className = 'save-edit';
-                    saveBtn.textContent = '✅ 保存';
-                    saveBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        saveEditMessage(index);
-                    });
-                    const cancelBtn = document.createElement('button');
-                    cancelBtn.className = 'cancel-edit';
-                    cancelBtn.textContent = '取消';
-                    cancelBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        cancelEditMessage();
-                    });
-                    editActions.appendChild(saveBtn);
-                    editActions.appendChild(cancelBtn);
-                    div.appendChild(editActions);
-
-                    if (!selectMode) {
-                        const actions = document.createElement('div');
-                        actions.className = 'msg-actions';
-                        const editBtn = document.createElement('button');
-                        editBtn.className = 'edit
+           
