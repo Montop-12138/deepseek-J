@@ -4,25 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>DeepSeek 智能助手</title>
-    
-    <!-- PWA 配置 -->
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#4f6ef7">
-    
-    <!-- 腾讯云开发 SDK -->
+    <meta name="theme-color" content="#4facfe">
     <script src="https://web.sdk.qcloud.com/cloudbase/v1.6.0/cloudbase.full.js"></script>
-    
     <style>
-        /* ============================================================
-        🎨 UI 美化版 - 完整样式
-        ============================================================ */
-        
-        /* ----- 基础重置 ----- */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background: linear-gradient(145deg, #f0f4ff 0%, #e8edf5 100%);
+            /* 你提供的图片作为背景 */
+            background-image: url('https://montop-12138.github.io/deepseek-J/image_1785898602798.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
             height: 100vh;
             display: flex;
             flex-direction: column;
@@ -30,8 +24,22 @@
             margin: 0 auto;
             padding: 8px 12px;
         }
-        
-        /* ----- 标题栏（渐变 + 阴影）----- */
+
+        /* 毛玻璃卡片容器 */
+        .glass-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 28px;
+            padding: 12px 14px 14px 14px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+        }
+
+        /* 标题栏 - 沙滩海岸线渐变 + 气泡静态效果 */
         h1 {
             font-size: 18px;
             color: #ffffff;
@@ -43,23 +51,75 @@
             justify-content: space-between;
             align-items: center;
             min-height: 48px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-            border: none;
-            margin-bottom: 6px;
+            /* 海岸线渐变 */
+            background: linear-gradient(135deg, rgba(79, 172, 254, 0.85) 0%, rgba(0, 210, 255, 0.7) 40%, rgba(79, 210, 240, 0.5) 70%, rgba(160, 230, 240, 0.3) 100%);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            /* 气泡升腾静态效果（用伪元素做泡泡） */
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.25);
         }
-        h1 .title-left { display: flex; align-items: center; gap: 8px; }
-        h1 .title-left span { font-size: 18px; }
-        h1 .title-left .app-name { font-weight: 700; letter-spacing: 0.5px; }
+        /* 气泡装饰 */
+        h1::before {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: 10%;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 60px -30px 0 10px rgba(255, 255, 255, 0.1), 120px -10px 0 5px rgba(255, 255, 255, 0.15), 200px -40px 0 20px rgba(255, 255, 255, 0.05);
+            pointer-events: none;
+        }
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            right: 20%;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: -80px -20px 0 15px rgba(255, 255, 255, 0.08), -150px -50px 0 8px rgba(255, 255, 255, 0.12);
+            pointer-events: none;
+        }
+
+        h1 .title-left { display: flex; align-items: center; gap: 8px; position: relative; z-index: 1; }
+        h1 .title-left .app-name { font-weight: 700; letter-spacing: 0.5px; text-shadow: 0 2px 8px rgba(0,0,0,0.08); }
         h1 .title-left .version-tag {
             font-size: 10px;
-            color: rgba(255,255,255,0.8);
+            color: rgba(255,255,255,0.9);
             background: rgba(255,255,255,0.2);
             padding: 2px 10px;
             border-radius: 12px;
             font-weight: 500;
         }
-        .header-actions { display: flex; gap: 6px; align-items: center; }
+
+        /* DS 图标 - 白色方块 + 蓝色活力字母 */
+        .ds-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            flex-shrink: 0;
+        }
+        .ds-icon span {
+            font-size: 16px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #4facfe 0%, #00d4ff 60%, #36d1dc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 0.5px;
+        }
+
+        .header-actions { display: flex; gap: 6px; align-items: center; position: relative; z-index: 1; }
         .header-actions button {
             padding: 4px 12px;
             border: none;
@@ -68,16 +128,19 @@
             cursor: pointer;
             font-weight: 600;
             transition: all 0.2s;
-        }
-        .header-actions button:active { transform: scale(0.95); }
-        .btn-new {
-            background: rgba(255,255,255,0.25);
+            background: rgba(255, 255, 255, 0.2);
             color: white;
             backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
         }
-        .btn-new:hover { background: rgba(255,255,255,0.35); }
+        .header-actions button:active { transform: scale(0.95); }
+        .btn-new { background: rgba(255,255,255,0.15); color: white; }
+        .btn-new:hover { background: rgba(255,255,255,0.25); }
 
-        /* ===== 折叠功能 ===== */
+        .toggle-collapse-btn { background: rgba(255,255,255,0.1); color: white; }
+        .toggle-collapse-btn:hover { background: rgba(255,255,255,0.2); }
+
+        /* 折叠功能 */
         .collapsible-section {
             transition: max-height 0.35s ease, opacity 0.3s ease, margin 0.3s ease, padding 0.3s ease;
             max-height: 500px;
@@ -89,39 +152,20 @@
             max-height: 0 !important;
             opacity: 0;
             margin: 0 !important;
-            padding-top: 0 !important;
-            padding-bottom: 0 !important;
+            padding: 0 !important;
             overflow: hidden;
         }
 
-        .toggle-collapse-btn {
-            background: rgba(255,255,255,0.2);
-            border: none;
-            color: white;
-            font-size: 12px;
-            cursor: pointer;
-            padding: 4px 10px;
-            font-weight: 500;
-            border-radius: 10px;
-            backdrop-filter: blur(4px);
-            transition: all 0.2s;
-        }
-        .toggle-collapse-btn:hover { background: rgba(255,255,255,0.3); }
-        .toggle-collapse-btn:active { transform: scale(0.95); }
-
-        /* 折叠后的紧凑模式 */
         .collapsed-mode h1 {
             padding: 6px 16px;
             min-height: 38px;
             margin-bottom: 4px;
-            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
         }
         .collapsed-mode .session-bar {
             border-bottom: none;
             margin-bottom: 2px;
             padding-top: 2px;
             padding-bottom: 2px;
-            background: transparent;
         }
         .collapsed-mode .session-tab {
             padding: 2px 10px;
@@ -132,19 +176,7 @@
             font-size: 11px;
         }
 
-        /* ===== UI 美化标签 ===== */
-        .ui-badge {
-            font-size: 9px;
-            color: #fff;
-            background: linear-gradient(135deg, #f093fb, #f5576c);
-            padding: 2px 8px;
-            border-radius: 10px;
-            margin-left: 4px;
-            font-weight: 600;
-            letter-spacing: 0.3px;
-        }
-
-        /* ----- API Key 区域 ----- */
+        /* API Key */
         .api-section {
             display: flex;
             gap: 6px;
@@ -154,45 +186,42 @@
         .api-section input {
             flex: 1;
             padding: 8px 14px;
-            border: 2px solid rgba(102, 126, 234, 0.2);
+            border: 1px solid rgba(255,255,255,0.3);
             border-radius: 12px;
             font-size: 12px;
             outline: none;
-            background: rgba(255,255,255,0.85);
+            background: rgba(255,255,255,0.6);
             backdrop-filter: blur(4px);
             transition: all 0.3s;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
         }
         .api-section input:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
-            background: white;
+            border-color: #4facfe;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.15);
+            background: rgba(255,255,255,0.8);
         }
-        .api-section input::placeholder { color: #b0b8c4; }
+        .api-section input::placeholder { color: rgba(0,0,0,0.3); }
         .api-section button {
             padding: 8px 18px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, #4facfe, #00d4ff);
             color: white;
             border: none;
             border-radius: 12px;
             font-size: 12px;
             cursor: pointer;
-            white-space: nowrap;
             font-weight: 600;
+            box-shadow: 0 4px 12px rgba(79, 172, 254, 0.3);
             transition: all 0.3s;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
         }
-        .api-section button:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4); }
         .api-section button:active { transform: scale(0.97); }
 
-        /* ----- 控制栏 ----- */
+        /* 控制栏 */
         .control-bar {
             display: flex;
             flex-wrap: wrap;
             align-items: center;
             gap: 6px 10px;
             padding: 6px 0 8px;
-            border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+            border-bottom: 1px solid rgba(255,255,255,0.15);
             flex-shrink: 0;
             font-size: 12px;
             color: #1a1a2e;
@@ -203,25 +232,19 @@
             gap: 6px;
             flex: 1 1 160px;
         }
-        .control-bar .slider-group label { 
-            white-space: nowrap; 
-            font-weight: 500; 
-            font-size: 12px;
-            color: #555;
-        }
+        .control-bar .slider-group label { white-space: nowrap; font-weight: 500; font-size: 12px; color: rgba(0,0,0,0.6); }
         .control-bar .slider-group input[type="range"] {
             flex: 1;
             min-width: 50px;
-            accent-color: #667eea;
+            accent-color: #4facfe;
             height: 4px;
             cursor: pointer;
-            border-radius: 4px;
         }
         .control-bar .slider-value {
             min-width: 30px;
             text-align: center;
             font-weight: 700;
-            color: #667eea;
+            color: #4facfe;
             font-size: 12px;
         }
         .control-bar .rename-group {
@@ -233,33 +256,33 @@
         .control-bar .rename-group input {
             flex: 1;
             padding: 4px 10px;
-            border: 2px solid rgba(102, 126, 234, 0.15);
+            border: 1px solid rgba(255,255,255,0.2);
             border-radius: 8px;
             font-size: 12px;
             outline: none;
-            min-width: 50px;
-            background: rgba(255,255,255,0.8);
+            background: rgba(255,255,255,0.4);
+            backdrop-filter: blur(4px);
             transition: all 0.3s;
         }
         .control-bar .rename-group input:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: #4facfe;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+            background: rgba(255,255,255,0.7);
         }
         .control-bar .rename-group button {
             padding: 4px 12px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, #4facfe, #00d4ff);
             color: white;
             border: none;
             border-radius: 8px;
             font-size: 11px;
             cursor: pointer;
-            white-space: nowrap;
             font-weight: 600;
             transition: all 0.2s;
         }
         .control-bar .rename-group button:active { transform: scale(0.95); }
 
-        /* ----- 分享栏 ----- */
+        /* 分享栏 */
         .share-bar {
             display: flex;
             gap: 4px;
@@ -275,35 +298,35 @@
             cursor: pointer;
             font-weight: 500;
             transition: all 0.2s;
-            background: rgba(255,255,255,0.7);
+            background: rgba(255,255,255,0.4);
             backdrop-filter: blur(4px);
-            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+            border: 1px solid rgba(255,255,255,0.2);
         }
         .share-bar button:active { transform: scale(0.95); }
-        .share-bar .btn-copy { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
-        .share-bar .btn-copy-all { background: linear-gradient(135deg, #11998e, #38ef7d); color: white; }
-        .share-bar .btn-export { background: linear-gradient(135deg, #f093fb, #f5576c); color: white; }
-        .share-bar .btn-select-mode { background: linear-gradient(135deg, #4facfe, #00f2fe); color: white; }
+        .share-bar .btn-copy { background: linear-gradient(135deg, #4facfe, #00d4ff); color: white; border: none; }
+        .share-bar .btn-copy-all { background: linear-gradient(135deg, #11998e, #38ef7d); color: white; border: none; }
+        .share-bar .btn-export { background: linear-gradient(135deg, #f093fb, #f5576c); color: white; border: none; }
+        .share-bar .btn-select-mode { background: linear-gradient(135deg, #4facfe, #00f2fe); color: white; border: none; }
         .share-bar .btn-select-mode.active { background: linear-gradient(135deg, #f5576c, #ff6b6b); }
         .share-bar .select-info {
             font-size: 11px;
-            color: #6b7280;
+            color: rgba(0,0,0,0.6);
             display: flex;
             align-items: center;
             gap: 4px;
-            background: rgba(255,255,255,0.7);
+            background: rgba(255,255,255,0.4);
             padding: 2px 10px;
             border-radius: 10px;
             backdrop-filter: blur(4px);
         }
         .share-bar .select-info input[type="checkbox"] {
-            accent-color: #667eea;
+            accent-color: #4facfe;
             width: 14px;
             height: 14px;
             cursor: pointer;
         }
 
-        /* ----- 会话标签栏 ----- */
+        /* 会话标签 */
         .session-bar {
             display: flex;
             gap: 4px;
@@ -311,34 +334,33 @@
             flex-shrink: 0;
             overflow-x: auto;
             flex-wrap: nowrap;
-            border-bottom: 2px solid rgba(102, 126, 234, 0.08);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
             margin-bottom: 4px;
         }
         .session-bar::-webkit-scrollbar { height: 2px; }
-        .session-bar::-webkit-scrollbar-thumb { background: rgba(102, 126, 234, 0.3); border-radius: 10px; }
+        .session-bar::-webkit-scrollbar-thumb { background: rgba(79, 172, 254, 0.3); border-radius: 10px; }
         .session-tab {
             padding: 4px 14px;
-            background: rgba(255,255,255,0.6);
+            background: rgba(255,255,255,0.3);
             backdrop-filter: blur(4px);
-            border: 1px solid rgba(102, 126, 234, 0.1);
+            border: 1px solid rgba(255,255,255,0.2);
             border-radius: 20px;
             font-size: 12px;
             cursor: pointer;
             white-space: nowrap;
             font-weight: 500;
-            color: #555;
+            color: rgba(0,0,0,0.6);
             transition: all 0.25s;
             flex-shrink: 0;
             display: flex;
             align-items: center;
             gap: 4px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
         }
         .session-tab.active {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, #4facfe, #00d4ff);
             color: white;
             border-color: transparent;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 4px 12px rgba(79, 172, 254, 0.3);
         }
         .session-tab .del-session {
             background: none;
@@ -352,39 +374,39 @@
         .session-tab .del-session:hover { opacity: 1; }
         .btn-add-session {
             padding: 4px 12px;
-            background: rgba(102, 126, 234, 0.1);
-            color: #667eea;
-            border: 1px dashed rgba(102, 126, 234, 0.3);
+            background: rgba(79, 172, 254, 0.1);
+            color: #4facfe;
+            border: 1px dashed rgba(79, 172, 254, 0.3);
             border-radius: 20px;
             font-size: 12px;
             cursor: pointer;
-            white-space: nowrap;
             font-weight: 500;
             flex-shrink: 0;
             transition: all 0.2s;
         }
-        .btn-add-session:hover { background: rgba(102, 126, 234, 0.2); }
+        .btn-add-session:hover { background: rgba(79, 172, 254, 0.2); }
         .btn-add-session:active { transform: scale(0.95); }
 
-        /* ----- 聊天框 ----- */
+        /* 聊天框 - 毛玻璃卡片 */
         .chat-box {
             flex: 1;
-            background: rgba(255,255,255,0.6);
+            background: rgba(255, 255, 255, 0.2);
             backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             border-radius: 20px;
             padding: 16px 14px;
             overflow-y: auto;
-            border: 1px solid rgba(255,255,255,0.3);
-            box-shadow: 0 8px 32px rgba(0,0,0,0.06);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.04);
             display: flex;
             flex-direction: column;
             gap: 8px;
             min-height: 150px;
         }
         .chat-box::-webkit-scrollbar { width: 3px; }
-        .chat-box::-webkit-scrollbar-thumb { background: rgba(102, 126, 234, 0.3); border-radius: 10px; }
+        .chat-box::-webkit-scrollbar-thumb { background: rgba(79, 172, 254, 0.3); border-radius: 10px; }
 
-        /* ----- 消息包装器 ----- */
+        /* 消息包装器 */
         .message-wrapper {
             position: relative;
             display: flex;
@@ -394,8 +416,6 @@
             width: 100%;
         }
         .message-wrapper.user-wrapper { align-items: flex-end; }
-        
-        /* 消息操作按钮 - 悬浮显示 */
         .message-wrapper .msg-actions {
             display: none;
             gap: 4px;
@@ -404,19 +424,19 @@
         }
         .message-wrapper:hover .msg-actions { display: flex; }
         .message-wrapper .msg-actions button {
-            background: rgba(255,255,255,0.8);
+            background: rgba(255,255,255,0.6);
             backdrop-filter: blur(4px);
             border: 1px solid rgba(0,0,0,0.06);
             border-radius: 6px;
             padding: 1px 8px;
             font-size: 10px;
             cursor: pointer;
-            color: #555;
+            color: rgba(0,0,0,0.6);
             transition: all 0.2s;
         }
-        .message-wrapper .msg-actions button:hover { background: white; transform: scale(1.05); }
+        .message-wrapper .msg-actions button:hover { background: white; }
         .message-wrapper .msg-actions .del-msg-btn { color: #dc2626; }
-        .message-wrapper .msg-actions .edit-msg-btn { color: #667eea; }
+        .message-wrapper .msg-actions .edit-msg-btn { color: #4facfe; }
 
         /* 选择模式 */
         .message-wrapper.select-mode .msg-actions { display: none !important; }
@@ -424,7 +444,7 @@
             display: none;
             margin-right: 6px;
             align-self: center;
-            accent-color: #667eea;
+            accent-color: #4facfe;
             width: 16px;
             height: 16px;
         }
@@ -432,7 +452,7 @@
         .message-wrapper.select-mode { flex-direction: row; align-items: center; gap: 4px; }
         .message-wrapper.select-mode .message { flex: 1; }
 
-        /* ===== 消息气泡 ===== */
+        /* 消息气泡 */
         .message {
             max-width: 85%;
             padding: 10px 16px;
@@ -442,33 +462,34 @@
             word-wrap: break-word;
             animation: fadeIn 0.3s ease;
             position: relative;
-            transition: all 0.2s;
         }
 
-        /* 用户消息 - 渐变气泡 + 发光 */
+        /* 用户消息 - 淡蓝色渐变 + 发光效果 */
         .message.user {
             align-self: flex-end;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: linear-gradient(135deg, rgba(79, 172, 254, 0.6) 0%, rgba(0, 210, 255, 0.45) 60%, rgba(79, 210, 240, 0.25) 100%);
+            color: #1a3a5c;
             border-bottom-right-radius: 4px;
-            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.35);
+            box-shadow: 0 4px 16px rgba(79, 172, 254, 0.2), 0 0 20px rgba(79, 172, 254, 0.08);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
         }
 
-        /* AI 消息 - 毛玻璃效果 */
+        /* AI 消息 - 不变（毛玻璃） */
         .message.assistant {
             align-self: flex-start;
-            background: rgba(255,255,255,0.85);
+            background: rgba(255, 255, 255, 0.6);
             backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             color: #1a1a2e;
-            border: 1px solid rgba(255,255,255,0.5);
+            border: 1px solid rgba(255, 255, 255, 0.4);
             border-bottom-left-radius: 4px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
         }
 
-        /* 错误消息 */
         .message.error {
             align-self: center;
-            background: rgba(254, 226, 226, 0.9);
+            background: rgba(254, 226, 226, 0.7);
             backdrop-filter: blur(4px);
             color: #dc2626;
             font-size: 12px;
@@ -477,8 +498,6 @@
             border-radius: 12px;
             padding: 8px 16px;
         }
-
-        /* 加载动画 */
         .message .loading-dots::after {
             content: '...';
             animation: dots 1.5s steps(4, end) infinite;
@@ -494,7 +513,7 @@
             to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
-        /* ----- 编辑模式 ----- */
+        /* 编辑模式 */
         .message.edit-mode .message-content { display: none; }
         .message.edit-mode .edit-textarea { display: block; }
         .message .edit-textarea {
@@ -502,14 +521,13 @@
             width: 100%;
             min-width: 180px;
             padding: 8px 12px;
-            border: 2px solid #667eea;
+            border: 2px solid #4facfe;
             border-radius: 12px;
             font-size: 14px;
             font-family: inherit;
             resize: vertical;
-            background: white;
+            background: rgba(255,255,255,0.9);
             outline: none;
-            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
         }
         .message .edit-actions {
             display: none;
@@ -524,19 +542,11 @@
             font-size: 11px;
             cursor: pointer;
             font-weight: 600;
-            transition: all 0.2s;
         }
-        .message .edit-actions .save-edit {
-            background: linear-gradient(135deg, #11998e, #38ef7d);
-            color: white;
-        }
-        .message .edit-actions .cancel-edit {
-            background: rgba(0,0,0,0.08);
-            color: #555;
-        }
-        .message .edit-actions button:active { transform: scale(0.95); }
+        .message .edit-actions .save-edit { background: #11998e; color: white; }
+        .message .edit-actions .cancel-edit { background: rgba(0,0,0,0.08); color: #555; }
 
-        /* ----- 输入区域 ----- */
+        /* 输入框 - 不变 */
         .input-section {
             display: flex;
             gap: 8px;
@@ -546,7 +556,7 @@
         .input-section textarea {
             flex: 1;
             padding: 10px 16px;
-            border: 2px solid rgba(102, 126, 234, 0.15);
+            border: 1px solid rgba(255,255,255,0.2);
             border-radius: 16px;
             font-size: 14px;
             resize: none;
@@ -554,20 +564,19 @@
             font-family: inherit;
             min-height: 44px;
             max-height: 100px;
-            background: rgba(255,255,255,0.85);
+            background: rgba(255,255,255,0.4);
             backdrop-filter: blur(4px);
             transition: all 0.3s;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
         }
         .input-section textarea:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.12), 0 4px 16px rgba(102, 126, 234, 0.08);
-            background: white;
+            border-color: #4facfe;
+            box-shadow: 0 0 0 4px rgba(79, 172, 254, 0.1);
+            background: rgba(255,255,255,0.7);
         }
-        .input-section textarea::placeholder { color: #b0b8c4; }
+        .input-section textarea::placeholder { color: rgba(0,0,0,0.3); }
         .input-section button {
             padding: 10px 22px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, #4facfe, #00d4ff);
             color: white;
             border: none;
             border-radius: 16px;
@@ -576,19 +585,17 @@
             font-weight: 600;
             flex-shrink: 0;
             height: 46px;
+            box-shadow: 0 4px 14px rgba(79, 172, 254, 0.3);
             transition: all 0.3s;
-            box-shadow: 0 4px 14px rgba(102, 126, 234, 0.3);
         }
-        .input-section button:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(102, 126, 234, 0.4); }
         .input-section button:active { transform: scale(0.95); }
         .input-section button:disabled {
-            background: linear-gradient(135deg, #b0b8c4, #9aa3b2);
+            background: rgba(0,0,0,0.1);
             box-shadow: none;
             cursor: not-allowed;
-            transform: none;
         }
 
-        /* ----- 底部状态栏 ----- */
+        /* 底部状态 */
         .status-tip {
             text-align: center;
             font-size: 10px;
@@ -602,7 +609,6 @@
             display: inline-flex;
             align-items: center;
             gap: 4px;
-            padding: 1px 0;
         }
         .status-tip .sync-status .sync-dot {
             display: inline-block;
@@ -618,13 +624,13 @@
             50% { opacity: 0.3; }
         }
 
-        /* ----- Toast 提示 ----- */
+        /* Toast */
         .toast {
             position: fixed;
             bottom: 90px;
             left: 50%;
             transform: translateX(-50%) scale(0.9);
-            background: rgba(0,0,0,0.78);
+            background: rgba(0,0,0,0.7);
             backdrop-filter: blur(8px);
             color: white;
             padding: 8px 24px;
@@ -634,11 +640,9 @@
             opacity: 0;
             transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
             pointer-events: none;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
         }
         .toast.show { opacity: 1; transform: translateX(-50%) scale(1); }
 
-        /* ----- 安全区域适配 ----- */
         @supports (padding: max(0px)) {
             body {
                 padding-left: max(8px, env(safe-area-inset-left));
@@ -651,73 +655,70 @@
 </head>
 <body>
 
-    <h1>
-        <div class="title-left">
-            <span>🤖</span>
-            <span class="app-name">DeepSeek</span>
-            <span class="version-tag">V4</span>
-            <span class="ui-badge">✨ 新UI</span>
-        </div>
-        <div class="header-actions">
-            <button class="toggle-collapse-btn" id="toggleCollapseBtn">⬆ 收起</button>
-            <button class="btn-new" id="newSessionBtn">➕</button>
-        </div>
-    </h1>
-
-    <!-- 折叠区域 -->
-    <div class="collapsible-section" id="collapsibleSection">
-        <div class="api-section">
-            <input type="password" id="apiKeyInput" placeholder="输入 API Key" />
-            <button id="saveKeyBtn">保存</button>
-        </div>
-
-        <div class="control-bar">
-            <div class="slider-group">
-                <label>📝</label>
-                <input type="range" id="maxTokensSlider" min="100" max="4096" value="2048" step="50" />
-                <span class="slider-value" id="maxTokensDisplay">2048</span>
+    <div class="glass-container">
+        <h1>
+            <div class="title-left">
+                <!-- DS 图标 -->
+                <span class="ds-icon"><span>DS</span></span>
+                <span class="app-name">DeepSeek</span>
+                <span class="version-tag">V4</span>
             </div>
-            <div class="rename-group">
-                <input type="text" id="renameInput" placeholder="重命名" />
-                <button id="renameBtn">重命名</button>
+            <div class="header-actions">
+                <button class="toggle-collapse-btn" id="toggleCollapseBtn">⬆ 收起</button>
+                <button class="btn-new" id="newSessionBtn">➕</button>
+            </div>
+        </h1>
+
+        <div class="collapsible-section" id="collapsibleSection">
+            <div class="api-section">
+                <input type="password" id="apiKeyInput" placeholder="输入 API Key" />
+                <button id="saveKeyBtn">保存</button>
+            </div>
+            <div class="control-bar">
+                <div class="slider-group">
+                    <label>📝</label>
+                    <input type="range" id="maxTokensSlider" min="100" max="4096" value="2048" step="50" />
+                    <span class="slider-value" id="maxTokensDisplay">2048</span>
+                </div>
+                <div class="rename-group">
+                    <input type="text" id="renameInput" placeholder="重命名" />
+                    <button id="renameBtn">重命名</button>
+                </div>
+            </div>
+            <div class="share-bar">
+                <button class="btn-copy" id="copyLastBtn">📋 复制</button>
+                <button class="btn-copy-all" id="copyAllBtn">📄 全部</button>
+                <button class="btn-export" id="exportBtn">📤 导出</button>
+                <button class="btn-select-mode" id="selectModeBtn">☑️ 选择</button>
+                <span class="select-info" id="selectInfo" style="display:none;">
+                    <input type="checkbox" id="selectAllCheckbox" /> 全选
+                    <span id="selectedCount">0条</span>
+                    <button class="btn-copy-all" id="copySelectedBtn" style="padding:2px 10px;font-size:10px;background:linear-gradient(135deg,#11998e,#38ef7d);color:white;border:none;border-radius:6px;cursor:pointer;">复制</button>
+                </span>
             </div>
         </div>
 
-        <div class="share-bar">
-            <button class="btn-copy" id="copyLastBtn">📋 复制</button>
-            <button class="btn-copy-all" id="copyAllBtn">📄 全部</button>
-            <button class="btn-export" id="exportBtn">📤 导出</button>
-            <button class="btn-select-mode" id="selectModeBtn">☑️ 选择</button>
-            <span class="select-info" id="selectInfo" style="display:none;">
-                <input type="checkbox" id="selectAllCheckbox" /> 全选
-                <span id="selectedCount">0条</span>
-                <button class="btn-copy-all" id="copySelectedBtn" style="padding:2px 10px;font-size:10px;background:linear-gradient(135deg,#11998e,#38ef7d);color:white;border:none;border-radius:6px;cursor:pointer;">复制</button>
+        <div class="session-bar" id="sessionBar"></div>
+        <div class="chat-box" id="chatBox"></div>
+
+        <div class="status-tip" id="statusTip">
+            <span class="sync-status" id="syncStatus">
+                <span class="sync-dot" id="syncDot"></span>
+                <span id="syncText">已同步</span>
             </span>
+            💡 DeepSeek-V4-Flash
         </div>
+
+        <div class="input-section">
+            <textarea id="userInput" rows="1" placeholder="输入消息..." disabled></textarea>
+            <button id="sendBtn" disabled>发送</button>
+        </div>
+        <div class="toast" id="toast"></div>
     </div>
-
-    <div class="session-bar" id="sessionBar"></div>
-
-    <div class="chat-box" id="chatBox"></div>
-
-    <div class="status-tip" id="statusTip">
-        <span class="sync-status" id="syncStatus">
-            <span class="sync-dot" id="syncDot"></span>
-            <span id="syncText">已同步</span>
-        </span>
-        💡 DeepSeek-V4-Flash
-    </div>
-
-    <div class="input-section">
-        <textarea id="userInput" rows="1" placeholder="输入消息..." disabled></textarea>
-        <button id="sendBtn" disabled>发送</button>
-    </div>
-
-    <div class="toast" id="toast"></div>
 
     <script>
         // ============================================================
-        //  DOM 引用
+        // DOM 引用
         // ============================================================
         const apiKeyInput = document.getElementById('apiKeyInput');
         const saveKeyBtn = document.getElementById('saveKeyBtn');
@@ -761,7 +762,7 @@
         }
 
         // ============================================================
-        //  折叠功能
+        // 折叠功能
         // ============================================================
         toggleBtn.addEventListener('click', function() {
             isCollapsed = !isCollapsed;
@@ -777,8 +778,10 @@
             setTimeout(() => {
                 chatBox.scrollTop = chatBox.scrollHeight;
             }, 100);
-        });        // ============================================================
-        //  初始化 CloudBase
+        });
+
+        // ============================================================
+        // CloudBase
         // ============================================================
         const ENV_ID = 'deepseek-chat-d5gg0748z3b9dfe24';
         let cloudApp = null;
@@ -793,7 +796,7 @@
         }
 
         async function getOrCreateUser() {
-            if (!cloudApp) return null;
+            如果 (!cloudApp) 返回 空;
             try {
                 const auth = cloudApp.auth();
                 const loginState = await auth.getLoginState();
@@ -814,7 +817,7 @@
         }
 
         // ============================================================
-        //  数据管理
+        // 数据管理
         // ============================================================
         let sessions = [];
         let currentSessionId = null;
@@ -825,720 +828,4 @@
         const STORAGE_KEY_MAX_TOKENS = 'deepseek_max_tokens';
 
         function generateId() {
-            return Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 4);
-        }
-
-        function getSessionName(messages) {
-            for (let m of messages) {
-                if (m.role === 'user') {
-                    const txt = m.content.replace(/\n/g, ' ').trim();
-                    return txt.length > 15 ? txt.substring(0, 15) + '…' : txt;
-                }
-            }
-            return '新对话';
-        }
-
-        function createSession(name) {
-            return { id: generateId(), name: name || '新对话', messages: [] };
-        }
-
-        function saveSessionsToLocal() {
-            localStorage.setItem(STORAGE_KEY_SESSIONS, JSON.stringify(sessions));
-            if (currentSessionId) {
-                localStorage.setItem(STORAGE_KEY_CURRENT, currentSessionId);
-            }
-        }
-
-        function loadSessionsFromLocal() {
-            const data = localStorage.getItem(STORAGE_KEY_SESSIONS);
-            if (data) {
-                try { sessions = JSON.parse(data); } catch (e) { sessions = []; }
-            } else { sessions = []; }
-            if (sessions.length === 0) {
-                const s = createSession('对话 1');
-                sessions.push(s);
-            }
-            const savedCurrent = localStorage.getItem(STORAGE_KEY_CURRENT);
-            if (savedCurrent && sessions.some(s => s.id === savedCurrent)) {
-                currentSessionId = savedCurrent;
-            } else {
-                currentSessionId = sessions[0].id;
-            }
-        }
-
-        function getCurrentSession() {
-            return sessions.find(s => s.id === currentSessionId) || sessions[0];
-        }
-
-        // ============================================================
-        //  核心函数：callDeepSeek
-        // ============================================================
-        window.callDeepSeek = async function(userMessage) {
-            console.log('📤 发送消息:', userMessage);
-
-            var key = localStorage.getItem('deepseek_api_key');
-            if (!key) {
-                showToast('⚠️ 请先设置 API Key');
-                return;
-            }
-
-            addMessageToCurrent('user', userMessage);
-            userInput.value = '';
-            userInput.style.height = 'auto';
-
-            const session = getCurrentSession();
-            session.messages = session.messages.filter(m => m.role !== 'loading');
-            session.messages.push({ role: 'loading', content: '🤔 思考中...' });
-            saveSessionsToLocal();
-            renderChat();
-            sendBtn.disabled = true;
-
-            try {
-                var maxTokens = parseInt(maxTokensSlider.value) || 2048;
-                var history = session.messages
-                    .filter(m => m.role === 'user' || m.role === 'assistant')
-                    .map(m => ({ role: m.role, content: m.content }));
-
-                var response = await fetch('https://api.deepseek.com/chat/completions', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer ' + key
-                    },
-                    body: JSON.stringify({
-                        model: 'deepseek-v4-flash',
-                        messages: [
-                            { role: 'system', content: '你是一个有用的AI助手，请用中文回复。回复简洁精炼，直接回答问题，不要重复用户的问题，不要输出思考过程。对于简单问题不超过200字，复杂问题不超过500字。' },
-                            ...history
-                        ],
-                        stream: false,
-                        max_tokens: maxTokens,
-                        temperature: 0.7
-                    })
-                });
-
-                var data = await response.json();
-                console.log('📥 API 响应:', data);
-
-                session.messages = session.messages.filter(m => m.role !== 'loading');
-
-                if (!response.ok) {
-                    var errMsg = data.error ? data.error.message : '请求失败';
-                    throw new Error('错误 ' + response.status + ': ' + errMsg);
-                }
-
-                if (data.choices && data.choices[0]) {
-                    var reply = data.choices[0].message.content;
-                    session.messages.push({ role: 'assistant', content: reply });
-                    if (session.name === '新对话' && session.messages.length > 0) {
-                        var name = getSessionName(session.messages);
-                        session.name = name;
-                        renderSessionTabs();
-                        renameInput.value = name;
-                    }
-                    saveSessionsToLocal();
-                    renderChat();
-                    console.log('✅ AI 回复成功');
-                } else {
-                    throw new Error('API 返回异常');
-                }
-            } catch (error) {
-                session.messages = session.messages.filter(m => m.role !== 'loading');
-                var errorText = '❌ ' + error.message;
-                if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
-                    errorText = '❌ 网络连接失败，请检查网络或API地址是否正确';
-                } else if (error.message.includes('401') || error.message.includes('403')) {
-                    errorText = '❌ API Key 无效或已过期，请重新输入';
-                    localStorage.removeItem('deepseek_api_key');
-                    API_KEY = '';
-                    enableChat(false);
-                    apiKeyInput.value = '';
-                }
-                session.messages.push({ role: 'error', content: errorText });
-                saveSessionsToLocal();
-                renderChat();
-                console.error('❌ 错误:', error);
-            } finally {
-                sendBtn.disabled = false;
-                userInput.focus();
-                cancelEditMessage();
-            }
-        };
-
-        // ============================================================
-        //  启用聊天
-        // ============================================================
-        function enableChat(enabled) {
-            userInput.disabled = !enabled;
-            sendBtn.disabled = !enabled;
-            if (enabled) {
-                userInput.focus();
-                statusTip.innerHTML = '<span class="sync-status"><span class="sync-dot" id="syncDot"></span><span id="syncText">已同步</span></span> 💡 DeepSeek-V4-Flash';
-            } else {
-                statusTip.innerHTML = '<span class="sync-status"><span class="sync-dot error" id="syncDot"></span><span id="syncText">未登录</span></span> ⏳ 请先输入 API Key';
-            }
-        }
-
-        // ============================================================
-        //  消息操作
-        // ============================================================
-        function addMessageToCurrent(role, content) {
-            const session = getCurrentSession();
-            if (!session) return;
-            session.messages = session.messages.filter(m => m.role !== 'loading');
-            session.messages.push({ role, content });
-            if (role === 'user' && session.messages.length === 1) {
-                const name = getSessionName(session.messages);
-                session.name = name;
-                renderSessionTabs();
-                renameInput.value = name;
-            }
-            saveSessionsToLocal();
-            renderChat();
-        }
-
-        function deleteMessage(index) {
-            const session = getCurrentSession();
-            if (!session) return;
-            if (index < 0 || index >= session.messages.length) return;
-            if (session.messages[index].role === 'loading') return;
-            if (!confirm('确定删除这条消息吗？')) return;
-            exitSelectMode();
-            session.messages.splice(index, 1);
-            saveSessionsToLocal();
-            renderChat();
-            showToast('已删除');
-        }
-
-        function startEditMessage(index) {
-            const session = getCurrentSession();
-            if (!session) return;
-            if (index < 0 || index >= session.messages.length) return;
-            const msg = session.messages[index];
-            if (msg.role === 'error' || msg.role === 'loading') return;
-
-            const wrappers = chatBox.querySelectorAll('.message-wrapper');
-            if (index < wrappers.length) {
-                const wrapper = wrappers[index];
-                const msgDiv = wrapper.querySelector('.message');
-                if (msgDiv) {
-                    document.querySelectorAll('.message.edit-mode').forEach(el => el.classList.remove('edit-mode'));
-                    msgDiv.classList.add('edit-mode');
-                    const textarea = msgDiv.querySelector('.edit-textarea');
-                    if (textarea) {
-                        textarea.value = msg.content;
-                        textarea.focus();
-                        textarea.setSelectionRange(textarea.value.length, textarea.value.length);
-                    }
-                }
-            }
-        }
-
-        function saveEditMessage(index) {
-            const session = getCurrentSession();
-            if (!session) return;
-            if (index < 0 || index >= session.messages.length) return;
-            const msg = session.messages[index];
-
-            const wrappers = chatBox.querySelectorAll('.message-wrapper');
-            if (index < wrappers.length) {
-                const wrapper = wrappers[index];
-                const msgDiv = wrapper.querySelector('.message');
-                if (msgDiv) {
-                    const textarea = msgDiv.querySelector('.edit-textarea');
-                    if (textarea) {
-                        const newContent = textarea.value.trim();
-                        if (!newContent) { showToast('内容不能为空'); return; }
-                        msg.content = newContent;
-                        msgDiv.classList.remove('edit-mode');
-                        saveSessionsToLocal();
-                        renderChat();
-
-                        if (msg.role === 'user') {
-                            const nextIndex = index + 1;
-                            if (nextIndex < session.messages.length) {
-                                session.messages.splice(nextIndex);
-                                saveSessionsToLocal();
-                            }
-                            setTimeout(() => { window.callDeepSeek(newContent); }, 100);
-                        }
-                        showToast('✅ 已修改');
-                    }
-                }
-            }
-        }
-
-        function cancelEditMessage() {
-            document.querySelectorAll('.message.edit-mode').forEach(el => el.classList.remove('edit-mode'));
-        }
-
-        // ============================================================
-        //  渲染函数
-        // ============================================================
-        function renderSessionTabs() {
-            sessionBar.innerHTML = '';
-            sessions.forEach(s => {
-                const btn = document.createElement('button');
-                btn.className = 'session-tab' + (s.id === currentSessionId ? ' active' : '');
-                const nameSpan = document.createElement('span');
-                nameSpan.textContent = s.name || '新对话';
-                btn.appendChild(nameSpan);
-                if (sessions.length > 1) {
-                    const del = document.createElement('button');
-                    del.className = 'del-session';
-                    del.textContent = '✕';
-                    del.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        deleteSession(s.id);
-                    });
-                    btn.appendChild(del);
-                }
-                btn.addEventListener('click', () => { switchSession(s.id); });
-                sessionBar.appendChild(btn);
-            });
-            const addBtn = document.createElement('button');
-            addBtn.className = 'btn-add-session';
-            addBtn.textContent = '+';
-            addBtn.addEventListener('click', addNewSession);
-            sessionBar.appendChild(addBtn);
-        }
-
-        function renderChat() {
-            const session = getCurrentSession();
-            chatBox.innerHTML = '';
-            if (!session || session.messages.length === 0) {
-                const div = document.createElement('div');
-                div.className = 'message assistant';
-                div.textContent = API_KEY ? '👋 开始新对话吧！输入消息开始聊天。' : '👋 请先在上方输入你的 API Key 开始对话。';
-                chatBox.appendChild(div);
-                return;
-            }
-            session.messages.forEach((msg, index) => {
-                const wrapper = document.createElement('div');
-                wrapper.className = 'message-wrapper';
-                if (msg.role === 'user') wrapper.classList.add('user-wrapper');
-                if (selectMode && msg.role !== 'error' && msg.role !== 'loading') {
-                    wrapper.classList.add('select-mode');
-                }
-
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.className = 'msg-checkbox';
-                checkbox.checked = selectedIndices.has(index);
-                checkbox.addEventListener('change', (e) => {
-                    e.stopPropagation();
-                    toggleSelectMessage(index);
-                });
-                wrapper.appendChild(checkbox);
-
-                const div = document.createElement('div');
-                div.className = 'message ' + msg.role;
-                if (msg.role === 'error' || msg.role === 'loading') {
-                    div.textContent = msg.content;
-                } else {
-                    const contentSpan = document.createElement('span');
-                    contentSpan.className = 'message-content';
-                    contentSpan.innerHTML = msg.content.replace(/\n/g, '<br>');
-                    div.appendChild(contentSpan);
-
-                    const textarea = document.createElement('textarea');
-                    textarea.className = 'edit-textarea';
-                    textarea.rows = 3;
-                    textarea.value = msg.content;
-                    div.appendChild(textarea);
-
-                    const editActions = document.createElement('div');
-                    editActions.className = 'edit-actions';
-                    const saveBtn = document.createElement('button');
-                    saveBtn.className = 'save-edit';
-                    saveBtn.textContent = '✅ 保存';
-                    saveBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        saveEditMessage(index);
-                    });
-                    const cancelBtn = document.createElement('button');
-                    cancelBtn.className = 'cancel-edit';
-                    cancelBtn.textContent = '取消';
-                    cancelBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        cancelEditMessage();
-                    });
-                    editActions.appendChild(saveBtn);
-                    editActions.appendChild(cancelBtn);
-                    div.appendChild(editActions);
-
-                    if (!selectMode) {
-                        const actions = document.createElement('div');
-                        actions.className = 'msg-actions';
-                        const editBtn = document.createElement('button');
-                        editBtn.className = 'edit-msg-btn';
-                        editBtn.textContent = '✏️ 编辑';
-                        editBtn.addEventListener('click', (e) => {
-                            e.stopPropagation();
-                            startEditMessage(index);
-                        });
-                        const delBtn = document.createElement('button');
-                        delBtn.className = 'del-msg-btn';
-                        delBtn.textContent = '🗑️ 删除';
-                        delBtn.addEventListener('click', (e) => {
-                            e.stopPropagation();
-                            deleteMessage(index);
-                        });
-                        actions.appendChild(editBtn);
-                        actions.appendChild(delBtn);
-                        div.appendChild(actions);
-                    }
-                }
-                wrapper.appendChild(div);
-                chatBox.appendChild(wrapper);
-            });
-            chatBox.scrollTop = chatBox.scrollHeight;
-        }
-
-        // ============================================================
-        //  会话操作
-        // ============================================================
-        function switchSession(sessionId) {
-            if (sessionId === currentSessionId) return;
-            exitSelectMode();
-            currentSessionId = sessionId;
-            localStorage.setItem(STORAGE_KEY_CURRENT, currentSessionId);
-            renderChat();
-            renderSessionTabs();
-            const session = getCurrentSession();
-            renameInput.value = session.name || '';
-        }
-
-        function deleteSession(sessionId) {
-            if (sessions.length <= 1) { showToast('至少保留一个对话'); return; }
-            if (!confirm('确定删除这个对话吗？')) return;
-            exitSelectMode();
-            sessions = sessions.filter(s => s.id !== sessionId);
-            if (currentSessionId === sessionId) {
-                currentSessionId = sessions[0].id;
-                localStorage.setItem(STORAGE_KEY_CURRENT, currentSessionId);
-            }
-            saveSessionsToLocal();
-            renderSessionTabs();
-            renderChat();
-            showToast('已删除');
-        }
-
-        function addNewSession() {
-            exitSelectMode();
-            const s = createSession('新对话');
-            sessions.push(s);
-            currentSessionId = s.id;
-            saveSessionsToLocal();
-            renderSessionTabs();
-            renderChat();
-            renameInput.value = s.name || '';
-            if (API_KEY) userInput.focus();
-            showToast('✅ 已创建新对话');
-        }
-
-        function renameCurrentSession(newName) {
-            const session = getCurrentSession();
-            if (!session) return;
-            const trimmed = newName.trim();
-            if (!trimmed) { showToast('请输入有效名称'); return; }
-            session.name = trimmed;
-            saveSessionsToLocal();
-            renderSessionTabs();
-            showToast('✅ 已重命名为: ' + trimmed);
-        }
-
-        // ============================================================
-        //  选择模式
-        // ============================================================
-        function toggleSelectMode() {
-            selectMode = !selectMode;
-            if (selectMode) {
-                selectedIndices.clear();
-                selectModeBtn.textContent = '❌ 退出';
-                selectModeBtn.classList.add('active');
-                selectInfo.style.display = 'flex';
-                selectAllCheckbox.checked = false;
-                updateSelectedCount();
-            } else {
-                exitSelectMode();
-            }
-            renderChat();
-        }
-
-        function exitSelectMode() {
-            selectMode = false;
-            selectedIndices.clear();
-            selectModeBtn.textContent = '☑️ 选择';
-            selectModeBtn.classList.remove('active');
-            selectInfo.style.display = 'none';
-            renderChat();
-        }
-
-        function toggleSelectMessage(index) {
-            if (!selectMode) return;
-            const session = getCurrentSession();
-            if (!session) return;
-            const msg = session.messages[index];
-            if (msg.role === 'error' || msg.role === 'loading') return;
-            if (selectedIndices.has(index)) {
-                selectedIndices.delete(index);
-            } else {
-                selectedIndices.add(index);
-            }
-            updateSelectedCount();
-            renderChat();
-        }
-
-        function updateSelectedCount() {
-            selectedCount.textContent = selectedIndices.size + '条';
-            const session = getCurrentSession();
-            if (session) {
-                const total = session.messages.filter(m => m.role !== 'error' && m.role !== 'loading').length;
-                selectAllCheckbox.checked = selectedIndices.size === total && total > 0;
-            }
-        }
-
-        function selectAllMessages() {
-            const session = getCurrentSession();
-            if (!session) return;
-            const allChecked = selectAllCheckbox.checked;
-            selectedIndices.clear();
-            if (allChecked) {
-                session.messages.forEach((msg, idx) => {
-                    if (msg.role !== 'error' && msg.role !== 'loading') {
-                        selectedIndices.add(idx);
-                    }
-                });
-            }
-            updateSelectedCount();
-            renderChat();
-        }
-
-        function getSelectedText() {
-            const session = getCurrentSession();
-            if (!session) return '';
-            const sorted = Array.from(selectedIndices).sort((a, b) => a - b);
-            let text = '📝 ' + session.name + '\n' + '='.repeat(40) + '\n\n';
-            sorted.forEach(idx => {
-                const msg = session.messages[idx];
-                if (msg) {
-                    const label = msg.role === 'user' ? '👤 用户' : '🤖 AI';
-                    text += '【' + label + '】\n' + msg.content + '\n\n';
-                }
-            });
-            return text;
-        }
-
-        function getAllText() {
-            const session = getCurrentSession();
-            if (!session) return '';
-            let text = '📝 ' + session.name + '\n' + '='.repeat(40) + '\n\n';
-            session.messages.forEach(msg => {
-                if (msg.role === 'error' || msg.role === 'loading') return;
-                const label = msg.role === 'user' ? '👤 用户' : '🤖 AI';
-                text += '【' + label + '】\n' + msg.content + '\n\n';
-            });
-            return text;
-        }
-
-        function getLastReply() {
-            const session = getCurrentSession();
-            if (!session) return '';
-            for (let i = session.messages.length - 1; i >= 0; i--) {
-                if (session.messages[i].role === 'assistant') {
-                    return session.messages[i].content;
-                }
-            }
-            return '';
-        }
-
-        function copyToClipboard(text) {
-            if (!text) { showToast('没有内容可复制'); return; }
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(text).then(() => {
-                    showToast('✅ 已复制到剪贴板');
-                }).catch(() => { fallbackCopy(text); });
-            } else {
-                fallbackCopy(text);
-            }
-        }
-
-        function fallbackCopy(text) {
-            const textarea = document.createElement('textarea');
-            textarea.value = text;
-            document.body.appendChild(textarea);
-            textarea.select();
-            try {
-                document.execCommand('copy');
-                showToast('✅ 已复制到剪贴板');
-            } catch (e) {
-                showToast('❌ 复制失败，请手动选择复制');
-            }
-            document.body.removeChild(textarea);
-        }
-
-        // ============================================================
-        //  事件绑定
-        // ============================================================
-
-        // 保存 API Key
-        saveKeyBtn.addEventListener('click', function() {
-            const key = apiKeyInput.value.trim();
-            if (!key) {
-                alert('请输入有效的 API Key');
-                return;
-            }
-            if (!key.startsWith('sk-')) {
-                alert('⚠️ API Key 格式不正确，应该以 sk- 开头');
-                return;
-            }
-            API_KEY = key;
-            localStorage.setItem('deepseek_api_key', key);
-            enableChat(true);
-            showToast('✅ API Key 已保存');
-            const session = getCurrentSession();
-            if (session) {
-                session.messages = session.messages.filter(m => m.role !== 'error');
-                saveSessionsToLocal();
-                renderChat();
-            }
-            if (session && session.messages.length === 0) {
-                addMessageToCurrent('assistant', '✅ API Key 保存成功！可以开始聊天了。');
-            } else {
-                addMessageToCurrent('assistant', '✅ API Key 已更新！');
-            }
-        });
-
-        // 滑动条
-        maxTokensSlider.addEventListener('input', function() {
-            const val = this.value;
-            maxTokensDisplay.textContent = val;
-            localStorage.setItem(STORAGE_KEY_MAX_TOKENS, val);
-        });
-
-        // 重命名
-        renameBtn.addEventListener('click', function() {
-            const newName = renameInput.value.trim();
-            if (!newName) { showToast('请输入名称'); return; }
-            renameCurrentSession(newName);
-        });
-        renameInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') { e.preventDefault(); renameBtn.click(); }
-        });
-
-        // 发送按钮
-        sendBtn.addEventListener('click', function() {
-            var msg = userInput.value.trim();
-            console.log('📤 按钮点击发送:', msg);
-            if (!msg) {
-                console.log('⚠️ 输入为空');
-                return;
-            }
-            if (typeof window.callDeepSeek === 'function') {
-                window.callDeepSeek(msg);
-            } else {
-                console.error('❌ callDeepSeek 未定义');
-                showToast('❌ 系统错误，请刷新页面重试');
-            }
-        });
-
-        userInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendBtn.click();
-            }
-        });
-
-        userInput.addEventListener('input', function() {
-            this.style.height = 'auto';
-            this.style.height = Math.min(this.scrollHeight, 80) + 'px';
-        });
-
-        newSessionBtn.addEventListener('click', addNewSession);
-
-        // 复制功能
-        copyLastBtn.addEventListener('click', function() {
-            var text = getLastReply();
-            copyToClipboard(text || '没有找到回复');
-        });
-
-        copyAllBtn.addEventListener('click', function() {
-            var text = getAllText();
-            copyToClipboard(text || '没有内容');
-        });
-
-        copySelectedBtn.addEventListener('click', function() {
-            var text = getSelectedText();
-            copyToClipboard(text || '请先选择消息');
-        });
-
-        // 导出
-        exportBtn.addEventListener('click', function() {
-            var text = getAllText();
-            if (!text) { showToast('没有内容可导出'); return; }
-            var blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
-            var link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            var session = getCurrentSession();
-            link.download = (session ? session.name : '对话') + '.txt';
-            link.click();
-            URL.revokeObjectURL(link.href);
-            showToast('✅ 导出成功');
-        });
-
-        selectModeBtn.addEventListener('click', toggleSelectMode);
-        selectAllCheckbox.addEventListener('change', selectAllMessages);
-
-        // ============================================================
-        //  初始化
-        // ============================================================
-        function init() {
-            const savedMaxTokens = localStorage.getItem(STORAGE_KEY_MAX_TOKENS);
-            if (savedMaxTokens) {
-                const val = parseInt(savedMaxTokens);
-                if (!isNaN(val) && val >= 100 && val <= 4096) {
-                    maxTokensSlider.value = val;
-                    maxTokensDisplay.textContent = val;
-                }
-            }
-
-            loadSessionsFromLocal();
-            renderSessionTabs();
-            renderChat();
-
-            const session = getCurrentSession();
-            renameInput.value = session.name || '';
-
-            if (API_KEY) {
-                apiKeyInput.value = API_KEY;
-                enableChat(true);
-                console.log('✅ API Key 已加载');
-                console.log('🔍 callDeepSeek 类型:', typeof window.callDeepSeek);
-            } else {
-                enableChat(false);
-                apiKeyInput.focus();
-            }
-
-            getOrCreateUser();
-            console.log('🚀 index3.html UI美化版初始化完成');
-        }
-
-        // 启动
-        init();
-
-        // 注册 Service Worker（PWA）
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
-                navigator.serviceWorker.register('/deepseek-J/sw.js')
-                    .then(function(registration) {
-                        console.log('✅ Service Worker 注册成功');
-                    })
-                    .catch(function(error) {
-                        console.log('❌ Service Worker 注册失败:', error);
-                    });
-            });
-        }
-    </script>
-</body>
-</html>
+            return Date.now().toString(36
