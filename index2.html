@@ -22,76 +22,93 @@
             flex-direction: column;
             max-width: 600px;
             margin: 0 auto;
-            padding: 12px;
+            padding: 8px 12px;
         }
         h1 {
-            font-size: 20px;
+            font-size: 18px;
             color: #1a1a2e;
             text-align: center;
-            padding: 8px 0;
+            padding: 4px 0;
             border-bottom: 1px solid #e8ecf1;
             flex-shrink: 0;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            min-height: 38px;
         }
-        h1 .title-left { display: flex; align-items: center; gap: 8px; }
-        h1 .title-left span { font-size: 18px; }
-        .header-actions { display: flex; gap: 6px; align-items: center; }
+        h1 .title-left { display: flex; align-items: center; gap: 6px; }
+        h1 .title-left span { font-size: 16px; }
+        .header-actions { display: flex; gap: 4px; align-items: center; }
         .header-actions button {
-            padding: 4px 10px;
+            padding: 2px 8px;
             border: none;
-            border-radius: 6px;
-            font-size: 13px;
+            border-radius: 4px;
+            font-size: 12px;
             cursor: pointer;
             font-weight: 500;
         }
         .btn-new { background: #4f6ef7; color: white; }
         .btn-new:active { opacity: 0.7; }
 
-        /* ===== 折叠按钮 ===== */
-        .toggle-collapse-btn {
-            background: none;
-            border: none;
-            color: #4f6ef7;
-            font-size: 13px;
-            cursor: pointer;
-            padding: 4px 8px;
-            font-weight: 500;
-            border-radius: 6px;
-            transition: background 0.2s;
-        }
-        .toggle-collapse-btn:hover { background: #e8ecf1; }
-        .toggle-collapse-btn:active { opacity: 0.6; }
-
-        /* ===== 折叠区域 ===== */
+        /* ===== 折叠功能（优化版） ===== */
         .collapsible-section {
-            transition: max-height 0.4s ease, opacity 0.3s ease, margin 0.3s ease, padding 0.3s ease;
-            max-height: 600px;
+            transition: max-height 0.35s ease, opacity 0.3s ease, margin 0.3s ease, padding 0.3s ease;
+            max-height: 500px;
             opacity: 1;
             overflow: hidden;
             margin-bottom: 0;
-            padding-top: 0;
-            padding-bottom: 0;
         }
         .collapsible-section.collapsed {
             max-height: 0 !important;
             opacity: 0;
-            margin-bottom: 0;
-            padding-top: 0;
-            padding-bottom: 0;
+            margin: 0 !important;
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
             overflow: hidden;
         }
-        .collapsed-mode h1 { border-bottom: none; padding-bottom: 4px; }
-        .collapsed-mode .session-bar { border-bottom: none; margin-bottom: 4px; }
+
+        .toggle-collapse-btn {
+            background: none;
+            border: none;
+            color: #4f6ef7;
+            font-size: 12px;
+            cursor: pointer;
+            padding: 2px 8px;
+            font-weight: 500;
+            border-radius: 4px;
+        }
+        .toggle-collapse-btn:hover { background: #e8ecf1; }
+        .toggle-collapse-btn:active { opacity: 0.6; }
+
+        /* ===== 折叠后的紧凑模式 ===== */
+        .collapsed-mode h1 {
+            border-bottom: none;
+            padding-top: 2px;
+            padding-bottom: 2px;
+            min-height: 32px;
+        }
+        .collapsed-mode .session-bar {
+            border-bottom: none;
+            margin-bottom: 2px;
+            padding-top: 2px;
+            padding-bottom: 2px;
+        }
+        .collapsed-mode .session-tab {
+            padding: 1px 8px;
+            font-size: 11px;
+        }
+        .collapsed-mode .btn-add-session {
+            padding: 1px 8px;
+            font-size: 11px;
+        }
 
         /* ===== 开发版标签 ===== */
         .dev-badge {
-            font-size: 10px;
+            font-size: 9px;
             color: #f59e0b;
             background: #fef3c7;
-            padding: 2px 8px;
-            border-radius: 10px;
+            padding: 1px 6px;
+            border-radius: 8px;
             margin-left: 4px;
             font-weight: 600;
         }
@@ -99,27 +116,27 @@
         .api-section {
             display: flex;
             gap: 6px;
-            padding: 8px 0;
+            padding: 6px 0;
             flex-shrink: 0;
         }
         .api-section input {
             flex: 1;
-            padding: 8px 12px;
+            padding: 6px 10px;
             border: 1px solid #d0d5dd;
-            border-radius: 6px;
-            font-size: 13px;
+            border-radius: 4px;
+            font-size: 12px;
             outline: none;
             background: white;
         }
         .api-section input:focus { border-color: #4f6ef7; }
         .api-section input::placeholder { color: #b0b8c4; }
         .api-section button {
-            padding: 8px 14px;
+            padding: 6px 12px;
             background: #4f6ef7;
             color: white;
             border: none;
-            border-radius: 6px;
-            font-size: 13px;
+            border-radius: 4px;
+            font-size: 12px;
             cursor: pointer;
             white-space: nowrap;
             font-weight: 500;
@@ -130,57 +147,57 @@
             display: flex;
             flex-wrap: wrap;
             align-items: center;
-            gap: 8px 12px;
-            padding: 6px 0 10px;
+            gap: 6px 10px;
+            padding: 4px 0 6px;
             border-bottom: 1px solid #e8ecf1;
             flex-shrink: 0;
-            font-size: 13px;
+            font-size: 12px;
             color: #1a1a2e;
         }
         .control-bar .slider-group {
             display: flex;
             align-items: center;
-            gap: 8px;
-            flex: 1 1 200px;
+            gap: 6px;
+            flex: 1 1 160px;
         }
-        .control-bar .slider-group label { white-space: nowrap; font-weight: 500; font-size: 13px; }
+        .control-bar .slider-group label { white-space: nowrap; font-weight: 500; font-size: 12px; }
         .control-bar .slider-group input[type="range"] {
             flex: 1;
-            min-width: 60px;
+            min-width: 50px;
             accent-color: #4f6ef7;
-            height: 4px;
+            height: 3px;
             cursor: pointer;
         }
         .control-bar .slider-value {
-            min-width: 36px;
+            min-width: 30px;
             text-align: center;
             font-weight: 600;
             color: #4f6ef7;
-            font-size: 14px;
+            font-size: 12px;
         }
         .control-bar .rename-group {
             display: flex;
             align-items: center;
             gap: 4px;
-            flex: 1 1 180px;
+            flex: 1 1 140px;
         }
         .control-bar .rename-group input {
             flex: 1;
-            padding: 4px 8px;
+            padding: 3px 6px;
             border: 1px solid #d0d5dd;
             border-radius: 4px;
-            font-size: 13px;
+            font-size: 12px;
             outline: none;
-            min-width: 60px;
+            min-width: 50px;
         }
         .control-bar .rename-group input:focus { border-color: #4f6ef7; }
         .control-bar .rename-group button {
-            padding: 4px 10px;
+            padding: 3px 8px;
             background: #4f6ef7;
             color: white;
             border: none;
             border-radius: 4px;
-            font-size: 12px;
+            font-size: 11px;
             cursor: pointer;
             white-space: nowrap;
             font-weight: 500;
@@ -189,16 +206,16 @@
 
         .share-bar {
             display: flex;
-            gap: 6px;
-            padding: 4px 0 8px;
+            gap: 4px;
+            padding: 3px 0 6px;
             flex-shrink: 0;
             flex-wrap: wrap;
         }
         .share-bar button {
-            padding: 4px 12px;
+            padding: 3px 8px;
             border: none;
-            border-radius: 6px;
-            font-size: 12px;
+            border-radius: 4px;
+            font-size: 11px;
             cursor: pointer;
             font-weight: 500;
             transition: opacity 0.2s;
@@ -210,37 +227,37 @@
         .share-bar .btn-select-mode { background: #8b5cf6; color: white; }
         .share-bar .btn-select-mode.active { background: #dc2626; }
         .share-bar .select-info {
-            font-size: 12px;
+            font-size: 11px;
             color: #6b7280;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
         }
         .share-bar .select-info input[type="checkbox"] {
             accent-color: #4f6ef7;
-            width: 16px;
-            height: 16px;
+            width: 14px;
+            height: 14px;
             cursor: pointer;
         }
 
         .session-bar {
             display: flex;
-            gap: 6px;
-            padding: 6px 0;
+            gap: 4px;
+            padding: 4px 0;
             flex-shrink: 0;
             overflow-x: auto;
             flex-wrap: nowrap;
             border-bottom: 1px solid #e8ecf1;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
-        .session-bar::-webkit-scrollbar { height: 3px; }
+        .session-bar::-webkit-scrollbar { height: 2px; }
         .session-bar::-webkit-scrollbar-thumb { background: #d0d5dd; border-radius: 10px; }
         .session-tab {
-            padding: 5px 14px;
+            padding: 3px 10px;
             background: #e8ecf1;
             border: none;
-            border-radius: 20px;
-            font-size: 13px;
+            border-radius: 16px;
+            font-size: 12px;
             cursor: pointer;
             white-space: nowrap;
             font-weight: 500;
@@ -249,7 +266,7 @@
             flex-shrink: 0;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
         }
         .session-tab.active { background: #4f6ef7; color: white; }
         .session-tab .del-session {
@@ -257,19 +274,19 @@
             border: none;
             color: inherit;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 12px;
             opacity: 0.6;
             padding: 0 2px;
         }
         .session-tab .del-session:hover { opacity: 1; }
         .session-tab .del-session:active { opacity: 0.4; }
         .btn-add-session {
-            padding: 5px 14px;
+            padding: 3px 10px;
             background: #4f6ef7;
             color: white;
             border: none;
-            border-radius: 20px;
-            font-size: 13px;
+            border-radius: 16px;
+            font-size: 12px;
             cursor: pointer;
             white-space: nowrap;
             font-weight: 500;
@@ -281,13 +298,13 @@
             flex: 1;
             background: white;
             border-radius: 12px;
-            padding: 14px;
+            padding: 12px;
             overflow-y: auto;
             border: 1px solid #e8ecf1;
             min-height: 150px;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
         }
         .message-wrapper {
             position: relative;
@@ -302,15 +319,15 @@
             display: none;
             gap: 4px;
             margin-top: 2px;
-            font-size: 12px;
+            font-size: 11px;
         }
         .message-wrapper:hover .msg-actions { display: flex; }
         .message-wrapper .msg-actions button {
             background: #e8ecf1;
             border: none;
             border-radius: 4px;
-            padding: 2px 8px;
-            font-size: 11px;
+            padding: 1px 6px;
+            font-size: 10px;
             cursor: pointer;
             color: #1a1a2e;
             transition: background 0.2s;
@@ -323,7 +340,7 @@
         .message-wrapper.select-mode .msg-actions { display: none !important; }
         .message-wrapper .msg-checkbox {
             display: none;
-            margin-right: 6px;
+            margin-right: 4px;
             align-self: center;
         }
         .message-wrapper.select-mode .msg-checkbox { display: inline-block; }
@@ -335,10 +352,10 @@
         .message-wrapper.select-mode .message { flex: 1; }
         .message {
             max-width: 85%;
-            padding: 8px 14px;
+            padding: 6px 12px;
             border-radius: 12px;
             font-size: 14px;
-            line-height: 1.6;
+            line-height: 1.5;
             word-wrap: break-word;
             animation: fadeIn 0.3s ease;
             position: relative;
@@ -359,7 +376,7 @@
             align-self: center;
             background: #fee2e2;
             color: #dc2626;
-            font-size: 13px;
+            font-size: 12px;
             max-width: 90%;
             text-align: center;
         }
@@ -382,8 +399,8 @@
         .message .edit-textarea {
             display: none;
             width: 100%;
-            min-width: 200px;
-            padding: 6px 10px;
+            min-width: 180px;
+            padding: 4px 8px;
             border: 2px solid #4f6ef7;
             border-radius: 8px;
             font-size: 14px;
@@ -395,15 +412,15 @@
         .message .edit-textarea:focus { border-color: #4f6ef7; }
         .message .edit-actions {
             display: none;
-            gap: 6px;
+            gap: 4px;
             margin-top: 4px;
         }
         .message.edit-mode .edit-actions { display: flex; }
         .message .edit-actions button {
-            padding: 2px 12px;
+            padding: 2px 10px;
             border: none;
             border-radius: 4px;
-            font-size: 12px;
+            font-size: 11px;
             cursor: pointer;
             font-weight: 500;
         }
@@ -415,25 +432,25 @@
         .input-section {
             display: flex;
             gap: 6px;
-            padding: 8px 0 0;
+            padding: 6px 0 0;
             flex-shrink: 0;
         }
         .input-section textarea {
             flex: 1;
-            padding: 8px 12px;
+            padding: 6px 10px;
             border: 1px solid #d0d5dd;
             border-radius: 8px;
             font-size: 14px;
             resize: none;
             outline: none;
             font-family: inherit;
-            min-height: 44px;
-            max-height: 100px;
+            min-height: 38px;
+            max-height: 80px;
             background: white;
         }
         .input-section textarea:focus { border-color: #4f6ef7; }
         .input-section button {
-            padding: 8px 18px;
+            padding: 6px 16px;
             background: #4f6ef7;
             color: white;
             border: none;
@@ -442,16 +459,16 @@
             cursor: pointer;
             font-weight: 500;
             flex-shrink: 0;
-            height: 44px;
+            height: 38px;
         }
         .input-section button:active { opacity: 0.7; }
         .input-section button:disabled { background: #b0b8c4; cursor: not-allowed; }
 
         .status-tip {
             text-align: center;
-            font-size: 11px;
+            font-size: 10px;
             color: #9aa3b2;
-            padding: 3px 0;
+            padding: 2px 0;
             flex-shrink: 0;
         }
         .toast {
@@ -461,9 +478,9 @@
             transform: translateX(-50%);
             background: rgba(0,0,0,0.8);
             color: white;
-            padding: 8px 20px;
+            padding: 6px 16px;
             border-radius: 8px;
-            font-size: 13px;
+            font-size: 12px;
             z-index: 999;
             opacity: 0;
             transition: opacity 0.4s ease;
@@ -472,24 +489,24 @@
         .toast.show { opacity: 1; }
         @supports (padding: max(0px)) {
             body {
-                padding-left: max(12px, env(safe-area-inset-left));
-                padding-right: max(12px, env(safe-area-inset-right));
-                padding-top: max(12px, env(safe-area-inset-top));
-                padding-bottom: max(12px, env(safe-area-inset-bottom));
+                padding-left: max(8px, env(safe-area-inset-left));
+                padding-right: max(8px, env(safe-area-inset-right));
+                padding-top: max(8px, env(safe-area-inset-top));
+                padding-bottom: max(8px, env(safe-area-inset-bottom));
             }
         }
         .sync-status {
-            font-size: 11px;
+            font-size: 10px;
             color: #9aa3b2;
             display: flex;
             align-items: center;
             gap: 4px;
-            padding: 2px 0;
+            padding: 1px 0;
         }
         .sync-status .sync-dot {
             display: inline-block;
-            width: 8px;
-            height: 8px;
+            width: 6px;
+            height: 6px;
             border-radius: 50%;
             background: #10b981;
         }
@@ -506,12 +523,12 @@
     <h1>
         <div class="title-left">
             <span>🤖</span> DeepSeek
-            <span style="font-size:12px;color:#9aa3b2;font-weight:400;margin-left:4px;">V4-Flash</span>
+            <span style="font-size:11px;color:#9aa3b2;font-weight:400;">V4-Flash</span>
             <span class="dev-badge">开发版</span>
         </div>
         <div class="header-actions">
             <button class="toggle-collapse-btn" id="toggleCollapseBtn">⬆ 收起</button>
-            <button class="btn-new" id="newSessionBtn">➕ 新建</button>
+            <button class="btn-new" id="newSessionBtn">➕</button>
         </div>
     </h1>
 
@@ -524,25 +541,25 @@
 
         <div class="control-bar">
             <div class="slider-group">
-                <label>📝 回复长度</label>
+                <label>📝</label>
                 <input type="range" id="maxTokensSlider" min="100" max="4096" value="2048" step="50" />
                 <span class="slider-value" id="maxTokensDisplay">2048</span>
             </div>
             <div class="rename-group">
-                <input type="text" id="renameInput" placeholder="新对话名" />
+                <input type="text" id="renameInput" placeholder="重命名" />
                 <button id="renameBtn">重命名</button>
             </div>
         </div>
 
         <div class="share-bar">
-            <button class="btn-copy" id="copyLastBtn">📋 复制最后回复</button>
-            <button class="btn-copy-all" id="copyAllBtn">📄 复制全部对话</button>
-            <button class="btn-export" id="exportBtn">📤 导出为文本</button>
-            <button class="btn-select-mode" id="selectModeBtn">☑️ 选择模式</button>
+            <button class="btn-copy" id="copyLastBtn">📋 复制</button>
+            <button class="btn-copy-all" id="copyAllBtn">📄 全部</button>
+            <button class="btn-export" id="exportBtn">📤 导出</button>
+            <button class="btn-select-mode" id="selectModeBtn">☑️ 选择</button>
             <span class="select-info" id="selectInfo" style="display:none;">
                 <input type="checkbox" id="selectAllCheckbox" /> 全选
-                <span id="selectedCount">已选 0 条</span>
-                <button class="btn-copy-all" id="copySelectedBtn" style="padding:2px 10px;font-size:12px;background:#10b981;color:white;border:none;border-radius:4px;cursor:pointer;">复制选中</button>
+                <span id="selectedCount">0条</span>
+                <button class="btn-copy-all" id="copySelectedBtn" style="padding:2px 8px;font-size:10px;background:#10b981;color:white;border:none;border-radius:4px;cursor:pointer;">复制</button>
             </span>
         </div>
     </div>
@@ -557,7 +574,7 @@
             <span class="sync-dot" id="syncDot"></span>
             <span id="syncText">已同步</span>
         </span>
-        💡 模型: DeepSeek-V4-Flash | 已就绪
+        💡 DeepSeek-V4-Flash
     </div>
 
     <div class="input-section">
@@ -825,7 +842,7 @@
             sendBtn.disabled = !enabled;
             if (enabled) {
                 userInput.focus();
-                statusTip.innerHTML = '<span class="sync-status"><span class="sync-dot" id="syncDot"></span><span id="syncText">已同步</span></span> 💡 模型: DeepSeek-V4-Flash | 已就绪';
+                statusTip.innerHTML = '<span class="sync-status"><span class="sync-dot" id="syncDot"></span><span id="syncText">已同步</span></span> 💡 DeepSeek-V4-Flash';
             } else {
                 statusTip.innerHTML = '<span class="sync-status"><span class="sync-dot error" id="syncDot"></span><span id="syncText">未登录</span></span> ⏳ 请先输入 API Key';
             }
@@ -1107,7 +1124,7 @@
             selectMode = !selectMode;
             if (selectMode) {
                 selectedIndices.clear();
-                selectModeBtn.textContent = '❌ 退出选择';
+                selectModeBtn.textContent = '❌ 退出';
                 selectModeBtn.classList.add('active');
                 selectInfo.style.display = 'flex';
                 selectAllCheckbox.checked = false;
@@ -1121,7 +1138,7 @@
         function exitSelectMode() {
             selectMode = false;
             selectedIndices.clear();
-            selectModeBtn.textContent = '☑️ 选择模式';
+            selectModeBtn.textContent = '☑️ 选择';
             selectModeBtn.classList.remove('active');
             selectInfo.style.display = 'none';
             renderChat();
@@ -1143,7 +1160,7 @@
         }
 
         function updateSelectedCount() {
-            selectedCount.textContent = '已选 ' + selectedIndices.size + ' 条';
+            selectedCount.textContent = selectedIndices.size + '条';
             const session = getCurrentSession();
             if (session) {
                 const total = session.messages.filter(m => m.role !== 'error' && m.role !== 'loading').length;
@@ -1304,7 +1321,7 @@
 
         userInput.addEventListener('input', function() {
             this.style.height = 'auto';
-            this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+            this.style.height = Math.min(this.scrollHeight, 80) + 'px';
         });
 
         newSessionBtn.addEventListener('click', addNewSession);
