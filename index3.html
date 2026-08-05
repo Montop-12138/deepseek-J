@@ -12,7 +12,6 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            /* 删掉图片，改用干净的渐变色背景 */
             background: linear-gradient(145deg, #f0f7ff 0%, #e6f0fa 50%, #dce8f5 100%);
             height: 100vh;
             display: flex;
@@ -22,7 +21,6 @@
             padding: 8px 12px;
         }
 
-        /* 毛玻璃卡片容器 */
         .glass-container {
             flex: 1;
             display: flex;
@@ -55,7 +53,6 @@
             overflow: hidden;
             box-shadow: 0 4px 15px rgba(79, 172, 254, 0.25);
         }
-        /* 气泡升腾静态装饰（纯 CSS） */
         h1::before {
             content: '';
             position: absolute;
@@ -92,7 +89,6 @@
             font-weight: 500;
         }
 
-        /* DS 图标 */
         .ds-icon {
             display: inline-flex;
             align-items: center;
@@ -134,7 +130,6 @@
         .toggle-collapse-btn { background: rgba(255,255,255,0.1); color: white; }
         .toggle-collapse-btn:hover { background: rgba(255,255,255,0.2); }
 
-        /* 折叠功能 */
         .collapsible-section {
             transition: max-height 0.35s ease, opacity 0.3s ease, margin 0.3s ease, padding 0.3s ease;
             max-height: 500px;
@@ -169,7 +164,6 @@
             font-size: 11px;
         }
 
-        /* API Key */
         .api-section {
             display: flex;
             gap: 6px;
@@ -207,7 +201,6 @@
         }
         .api-section button:active { transform: scale(0.97); }
 
-        /* 控制栏 */
         .control-bar {
             display: flex;
             flex-wrap: wrap;
@@ -275,7 +268,6 @@
         }
         .control-bar .rename-group button:active { transform: scale(0.95); }
 
-        /* 分享栏 */
         .share-bar {
             display: flex;
             gap: 4px;
@@ -319,7 +311,6 @@
             cursor: pointer;
         }
 
-        /* 会话标签 */
         .session-bar {
             display: flex;
             gap: 4px;
@@ -380,7 +371,6 @@
         .btn-add-session:hover { background: rgba(79, 172, 254, 0.2); }
         .btn-add-session:active { transform: scale(0.95); }
 
-        /* 聊天框 - 毛玻璃卡片 */
         .chat-box {
             flex: 1;
             background: rgba(255, 255, 255, 0.2);
@@ -399,7 +389,6 @@
         .chat-box::-webkit-scrollbar { width: 3px; }
         .chat-box::-webkit-scrollbar-thumb { background: rgba(79, 172, 254, 0.3); border-radius: 10px; }
 
-        /* 消息包装器 */
         .message-wrapper {
             position: relative;
             display: flex;
@@ -431,7 +420,6 @@
         .message-wrapper .msg-actions .del-msg-btn { color: #dc2626; }
         .message-wrapper .msg-actions .edit-msg-btn { color: #4facfe; }
 
-        /* 选择模式 */
         .message-wrapper.select-mode .msg-actions { display: none !important; }
         .message-wrapper .msg-checkbox {
             display: none;
@@ -445,7 +433,6 @@
         .message-wrapper.select-mode { flex-direction: row; align-items: center; gap: 4px; }
         .message-wrapper.select-mode .message { flex: 1; }
 
-        /* 消息气泡 */
         .message {
             max-width: 85%;
             padding: 10px 16px;
@@ -457,7 +444,6 @@
             position: relative;
         }
 
-        /* 用户消息 - 淡蓝色渐变 + 发光效果 */
         .message.user {
             align-self: flex-end;
             background: linear-gradient(135deg, rgba(79, 172, 254, 0.55) 0%, rgba(0, 210, 255, 0.4) 60%, rgba(79, 210, 240, 0.2) 100%);
@@ -468,7 +454,6 @@
             border: 1px solid rgba(255, 255, 255, 0.4);
         }
 
-        /* AI 消息 - 不变 */
         .message.assistant {
             align-self: flex-start;
             background: rgba(255, 255, 255, 0.6);
@@ -506,7 +491,6 @@
             to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
-        /* 编辑模式 */
         .message.edit-mode .message-content { display: none; }
         .message.edit-mode .edit-textarea { display: block; }
         .message .edit-textarea {
@@ -539,7 +523,6 @@
         .message .edit-actions .save-edit { background: #11998e; color: white; }
         .message .edit-actions .cancel-edit { background: rgba(0,0,0,0.08); color: #555; }
 
-        /* 输入框 - 不变 */
         .input-section {
             display: flex;
             gap: 8px;
@@ -588,7 +571,6 @@
             cursor: not-allowed;
         }
 
-        /* 底部状态 */
         .status-tip {
             text-align: center;
             font-size: 10px;
@@ -617,7 +599,6 @@
             50% { opacity: 0.3; }
         }
 
-        /* Toast */
         .toast {
             position: fixed;
             bottom: 90px;
@@ -709,7 +690,7 @@
 
     <script>
         // ============================================================
-        // DOM 引用
+        //  DOM 引用
         // ============================================================
         const apiKeyInput = document.getElementById('apiKeyInput');
         const saveKeyBtn = document.getElementById('saveKeyBtn');
@@ -718,30 +699,13 @@
         const sendBtn = document.getElementById('sendBtn');
         const statusTip = document.getElementById('statusTip');
         const toast = document.getElementById('toast');
-        const sessionBar = document.getElementById('sessionBar');
-        const newSessionBtn = document.getElementById('newSessionBtn');
-
-        const maxTokensSlider = document.getElementById('maxTokensSlider');
-        const maxTokensDisplay = document.getElementById('maxTokensDisplay');
-        const renameInput = document.getElementById('renameInput');
-        const renameBtn = document.getElementById('renameBtn');
-
-        const copyLastBtn = document.getElementById('copyLastBtn');
-        const copyAllBtn = document.getElementById('copyAllBtn');
-        const exportBtn = document.getElementById('exportBtn');
-        const selectModeBtn = document.getElementById('selectModeBtn');
-        const selectInfo = document.getElementById('selectInfo');
-        const selectAllCheckbox = document.getElementById('selectAllCheckbox');
-        const selectedCount = document.getElementById('selectedCount');
-        const copySelectedBtn = document.getElementById('copySelectedBtn');
 
         const toggleBtn = document.getElementById('toggleCollapseBtn');
         const collapsibleSection = document.getElementById('collapsibleSection');
 
-        let selectMode = false;
-        let selectedIndices = new Set();
-        let isCollapsed = false;
-
+        // ============================================================
+        //  Toast 提示
+        // ============================================================
         let toastTimer = null;
         function showToast(msg) {
             toast.textContent = msg;
@@ -753,8 +717,9 @@
         }
 
         // ============================================================
-        // 折叠功能
+        //  折叠功能
         // ============================================================
+        let isCollapsed = false;
         toggleBtn.addEventListener('click', function() {
             isCollapsed = !isCollapsed;
             if (isCollapsed) {
@@ -772,65 +737,96 @@
         });
 
         // ============================================================
-        // CloudBase
+        //  消息管理
         // ============================================================
-        const ENV_ID = 'deepseek-chat-d5gg0748z3b9dfe24';
-        let cloudApp = null;
-        let currentUser = null;
-        let isCloudReady = false;
-
-        try {
-            cloudApp = cloudbase.init({ env: ENV_ID });
-            console.log('✅ CloudBase 初始化成功');
-        } catch (e) {
-            console.warn('⚠️ CloudBase 初始化失败，将使用本地存储');
-        }
-
-        async function getOrCreateUser() {
-            如果 (!cloudApp) 返回 空;
-            尝试 {
-                const auth = cloudApp.auth();
-                const loginState = await auth.getLoginState();
-                if (loginState) {
-                    currentUser = loginState.user;
-                    isCloudReady = true;
-                    return currentUser;
-                }
-                await auth.anonymousAuthProvider().signIn();
-                const newState = await auth.getLoginState();
-                currentUser = newState.user;
-                isCloudReady = true;
-                return currentUser;
-            } catch (e) {
-                console.warn('⚠️ 云端登录失败，使用本地存储');
-                return null;
-            }
-        }
-
-        // ============================================================
-        // 数据管理
-        // ============================================================
-        let sessions = [];
-        let currentSessionId = null;
+        let messages = [];
         let API_KEY = localStorage.getItem('deepseek_api_key') || '';
 
-        const STORAGE_KEY_SESSIONS = 'deepseek_sessions';
-        const STORAGE_KEY_CURRENT = 'deepseek_current_session';
-        const STORAGE_KEY_MAX_TOKENS = 'deepseek_max_tokens';
-
-        function generateId() {
-            返回 日期.现在().转为字符串(36) + '_' + 数学.随机数().转为字符串(36).取子串(2, 4);
+        function addMessage(role, content) {
+            messages.push({ role, content });
+            renderChat();
         }
 
-        函数 getSessionName(消息) {
-            对于 (letm在消息中){
-                如果 (m.角色 === '用户') {
-                    const txt = m.content.replace(/\n/g, ' ').trim();
-                    返回 txt.长度 > 15 ? 文本.子字符串(0, 15) + '…' : txt;
-                }
+        function renderChat() {
+            chatBox.innerHTML = '';
+            if (messages.length === 0) {
+                const div = document.createElement('div');
+                div.className = 'message assistant';
+                div.textContent = API_KEY ? '👋 开始新对话吧！输入消息开始聊天。' : '👋 请先在上方输入你的 API Key 开始对话。';
+                chatBox.appendChild(div);
+                return;
             }
-            return '新对话';
+            messages.forEach(function(msg) {
+                const div = document.createElement('div');
+                div.className = 'message ' + msg.role;
+                if (msg.role === 'loading') {
+                    div.textContent = '🤔 思考中...';
+                } else {
+                    div.textContent = msg.content;
+                }
+                chatBox.appendChild(div);
+            });
+            chatBox.scrollTop = chatBox.scrollHeight;
         }
 
-        function createSession(name) {
-            返回 { id: generateId(), name: name || '新对话
+        // ============================================================
+        //  API Key 保存
+        // ============================================================
+        function enableChat(enabled) {
+            userInput.disabled = !enabled;
+            sendBtn.disabled = !enabled;
+            if (enabled) {
+                userInput.focus();
+                statusTip.innerHTML = '<span class="sync-status"><span class="sync-dot" id="syncDot"></span><span id="syncText">已同步</span></span> 💡 DeepSeek-V4-Flash';
+            } else {
+                statusTip.innerHTML = '<span class="sync-status"><span class="sync-dot error" id="syncDot"></span><span id="syncText">未登录</span></span> ⏳ 请先输入 API Key';
+            }
+        }
+
+        saveKeyBtn.addEventListener('click', function() {
+            const key = apiKeyInput.value.trim();
+            if (!key) {
+                showToast('请输入有效的 API Key');
+                return;
+            }
+            if (!key.startsWith('sk-')) {
+                showToast('API Key 格式不正确，应该以 sk- 开头');
+                return;
+            }
+            API_KEY = key;
+            localStorage.setItem('deepseek_api_key', key);
+            enableChat(true);
+            // 清除错误消息
+            messages = messages.filter(function(m) { return m.role !== 'error'; });
+            if (messages.length === 0) {
+                addMessage('assistant', '✅ API Key 保存成功！可以开始聊天了。');
+            } else {
+                addMessage('assistant', '✅ API Key 已更新！');
+            }
+            showToast('✅ API Key 已保存');
+        });
+
+        // ============================================================
+        //  发送消息
+        // ============================================================
+        async function sendMessage() {
+            const msg = userInput.value.trim();
+            if (!msg) {
+                showToast('请输入消息');
+                return;
+            }
+
+            const key = localStorage.getItem('deepseek_api_key');
+            if (!key) {
+                showToast('请先保存 API Key');
+                return;
+            }
+
+            // 添加用户消息
+            addMessage('user', msg);
+            userInput.value = '';
+            sendBtn.disabled = true;
+
+            // 添加加载状态
+            addMessage('loading', '');
+           
