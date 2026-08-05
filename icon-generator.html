@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图标生成器</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+            background: #f0f7ff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        h2 { color: #1a1a2e; margin-bottom: 16px; }
+        .icon-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            max-width: 100%;
+        }
+        .icon-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .icon-wrapper label {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        canvas {
+            border: 1px solid #e8ecf1;
+            border-radius: 12px;
+        }
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .btn-group button {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-group button:active { transform: scale(0.95); }
+        .btn-download { background: linear-gradient(135deg, #4facfe, #00d4ff); color: white; }
+        .btn-download:hover { opacity: 0.85; }
+        .btn-download:disabled { opacity: 0.4; cursor: not-allowed; }
+        .btn-preview { background: #e8ecf1; color: #1a1a2e; }
+        .info {
+            margin-top: 12px;
+            font-size: 13px;
+            color: #666;
+            text-align: center;
+            background: #f5f7fa;
+            padding: 12px 20px;
+            border-radius: 8px;
+            max-width: 100%;
+        }
+        .info code {
+            background: #e8ecf1;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        .success {
+            color: #10b981;
+            font-weight: 600;
+        }
+        .tip {
+            font-size: 12px;
+            color: #999;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="icon-container">
+        <h2>🎨 DeepSeek 图标生成器</h2>
+
+        <div class="icon-wrapper">
+            <label>192 × 192 像素（主图标）</label>
+            <canvas id="canvas192" width="192" height="192"></canvas>
+            <button id="download192" class="btn-download">⬇ 下载 192x192</button>
+        </div>
+
+        <div class="icon-wrapper">
+            <label>512 × 512 像素（高清图标）</label>
+            <canvas id="canvas512" width="512" height="512"></canvas>
+            <button id="download512" class="btn-download">⬇ 下载 512x512</button>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn-preview" id="previewBtn">👁️ 预览效果</button>
+        </div>
+
+        <div class="info">
+            <p>📌 图标说明</p>
+            <p style="margin-top:4px;font-size:12px;">
+                白色方块背景 + 蓝色圆形（渐变） + 中央 "DS" 字母
+            </p>
+            <p class="tip">
+                下载后，将文件重命名为 <code>icon-192.png</code> 和 <code>icon-512.png</code>，上传到 GitHub 仓库根目录。
+            </p>
+        </div>
+
+        <div id="status" class="info" style="display:none;"></div>
+    </div>
+
+    <script>
+        // ============================================================
+        //  绘制图标
+        // ============================================================
+        function drawIcon(canvas, size) {
+            const ctx = canvas.getContext('2d');
+
+            // 清空
+            ctx.clearRect(0, 0, size, size);
+
+            // ---------- 1. 白色方块背景（带圆角） ----------
+            const margin = size * 0.05;
+            const radius = size * 0.15;
+            const w = size - margin * 2;
+            const x = margin;
+            const y = margin;
+
+            ctx.beginPath();
+            ctx.moveTo(x + radius, y);
+            ctx.lineTo(x + w - radius, y);
+            ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
+            ctx.lineTo(x + w, y + w - radius);
+            ctx.quadraticCurveTo(x + w, y + w, x + w - radius, y + w);
+            ctx.lineTo(x + radius, y + w);
+            ctx.quadraticCurveTo(x, y + w, x, y + w - radius);
+            ctx.lineTo(x, y + radius);
+            ctx.quadraticCurveTo(x, y, x + radius, y);
+            ctx.closePath();
+
+            ctx.fillStyle = '#ffffff';
+            ctx.fill();
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.06)';
+            ctx.shadowBlur = size * 0.04;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = size * 0.02;
+            ctx.fill();
+            ctx.shadowColor = 'transparent';
+
+            // ---------- 2. 蓝色圆形（渐变） ----------
+            const centerX = size / 2;
+            const centerY = size / 2;
+            const circleRadius = size * 0.30;
+
+            // 渐变
+            const grad = ctx.createRadialGradient(
+                centerX - circleRadius * 0.2,
+                centerY - circleRadius * 0.2,
+                0,
+                centerX,
+                centerY,
+                circleRadius
+            );
+            grad.addColorStop(0, '#6bc1ff');
+            grad.addColorStop(0.4, '#4facfe');
+            grad.addColorStop(0.8, '#00d4ff');
+            grad.addColorStop(1, '#00b8d4');
+
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, circleRadius, 0, Math.PI * 2);
+            ctx.fillStyle = grad;
+            ctx.fill();
+
+            // 圆形柔和光晕
+            const glowGrad = ctx.createRadialGradient(
+                centerX - circleRadius * 0.3,
+                centerY - circleRadius * 0.3,
+                0,
+                centerX,
+                centerY,
+                circleRadius
+            );
+            glowGrad.addColorStop(0, 'rgba(255,255,255,0.25)');
+            glowGrad.addColorStop(0.5, 'rgba(255,255,255,0.05)');
+            glowGrad.addColorStop(1, 'rgba(255,255,255,0)');
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, circleRadius, 0, Math.PI * 2);
+            ctx.fillStyle = glowGrad;
+            ctx.fill();
+
+            // ---------- 3. DS 字母 ----------
+            const text = 'DS';
+            const fontSize = size * 0.28;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.font = 'bold ' + fontSize + 'px -apple-system, "Segoe UI", Roboto, sans-serif';
+
+            // 白色文字 + 轻微阴影
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.06)';
+            ctx.shadowBlur = size * 0.04;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = size * 0.02;
+            ctx.fillStyle = '#ffffff';
+            ctx.fillText(text, centerX, centerY + size * 0.01);
+            ctx.shadowColor = 'transparent';
+        }
+
+        // ============================================================
+        //  生成图标
+        // ============================================================
+        const canvas192 = document.getElementById('canvas192');
+        const canvas512 = document.getElementById('canvas512');
+
+        drawIcon(canvas192, 192);
+        drawIcon(canvas512, 512);
+
+        // ============================================================
+        //  下载功能
+        // ============================================================
+        function downloadCanvas(canvas, filename) {
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = canvas.toDataURL('image/png');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        document.getElementById('download192').addEventListener('click', function() {
+            downloadCanvas(canvas192, 'icon-192.png');
+            showStatus('✅ 192x192 图标已下载！');
+        });
+
+        document.getElementById('download512').addEventListener('click', function() {
+            downloadCanvas(canvas512, 'icon-512.png');
+            showStatus('✅ 512x512 图标已下载！');
+        });
+
+        // ============================================================
+        //  预览效果
+        // ============================================================
+        let previewWindow = null;
+
+        document.getElementById('previewBtn').addEventListener('click', function() {
+            const data192 = canvas192.toDataURL('image/png');
+            const data512 = canvas512.toDataURL('image/png');
+
+            const html = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>图标预览</title>
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <style>
+                        body { font-family: -apple-system, "Segoe UI", Roboto, sans-serif; background: #f0f7ff; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; }
+                        .preview-container { background: white; border-radius: 16px; padding: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); max-width: 500px; width: 100%; }
+                        h2 { color: #1a1a2e; margin-bottom: 20px; text-align: center; }
+                        .preview-grid { display: flex; gap: 30px; justify-content: center; flex-wrap: wrap; }
+                        .preview-item { display: flex; flex-direction: column; align-items: center; }
+                        .preview-item img { border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+                        .preview-item .label { font-size: 12px; color: #666; margin-top: 8px; }
+                        .note { text-align: center; color: #999; font-size: 13px; margin-top: 16px; border-top: 1px solid #e8ecf1; padding-top: 16px; }
+                    </style>
+                </head>
+                <body>
+                    <div class="preview-container">
+                        <h2>📱 图标预览</h2>
+                        <div class="preview-grid">
+                            <div class="preview-item">
+                                <img src="${data192}" width="96" height="96" alt="192px" />
+                                <span class="label">192×192</span>
+                            </div>
+                            <div class="preview-item">
+                                <img src="${data512}" width="120" height="120" alt="512px" />
+                                <span class="label">512×512</span>
+                            </div>
+                        </div>
+                        <div class="note">
+                            💡 关闭此窗口返回
+                        </div>
+                    </div>
+                </body>
+                </html>
+            `;
+
+            if (previewWindow && !previewWindow.closed) {
+                previewWindow.close();
+            }
+            previewWindow = window.open('', '_blank', 'width=500,height=600');
+            previewWindow.document.write(html);
+            previewWindow.document.close();
+        });
+
+        // ============================================================
+        //  状态提示
+        // ============================================================
+        let statusTimer = null;
+
+        function showStatus(msg) {
+            const el = document.getElementById('status');
+            el.style.display = 'block';
+            el.innerHTML = '<span class="success">' + msg + '</span>';
+            clearTimeout(statusTimer);
+            statusTimer = setTimeout(function() {
+                el.style.display = 'none';
+            }, 3000);
+        }
+
+        // ============================================================
+        //  键盘快捷键
+        // ============================================================
+        document.addEventListener('keydown', function(e) {
+            if (e.key === '1') document.getElementById('download192').click();
+            if (e.key === '2') document.getElementById('download512').click();
+            if (e.key === 'p') document.getElementById('previewBtn').click();
+        });
+
+        console.log('🎨 快捷键: [1] 下载192 [2] 下载512 [p] 预览');
+    </script>
+</body>
+</html>
