@@ -2,7 +2,7 @@
   "name": "DeepSeek 智能助手",
   "short_name": "DeepSeek",
   "description": "DeepSeek AI 对话助手",
-  "start_url": "/deepseek-J/",
+  "start_url": "/deepseek-J/index6.html",
   "display": "standalone",
   "background_color": "#f0f7ff",
   "theme_color": "#4facfe",
@@ -11,6 +11,12 @@
     {
       "src": "https://montop-12138.github.io/deepseek-J/icon-192.png",
       "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://montop-12138.github.io/deepseek-J/icon-512.png",
+      "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
     }
