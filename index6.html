@@ -6,18 +6,9 @@
     <title>DeepSeek 智能助手</title>
     
     <!-- ===== 腾讯云开发 SDK - ES Module 方式 ===== -->
-    <script type="importmap">
-    {
-        "imports": {
-            "@cloudbase/js-sdk": "https://unpkg.com/@cloudbase/js-sdk@2.19.0/dist/index.esm.js"
-        }
-    }
-    </script>
-    <script type="module">
-    import cloudbase from '@cloudbase/js-sdk';
-    window.cloudbase = cloudbase;
-    console.log('✅ CloudBase SDK 加载成功');
-    </script>
+<!-- ===== 腾讯云开发 SDK - 传统方式 ===== -->
+<script src="https://cdn.jsdelivr.net/npm/@cloudbase/js-sdk@1.7.0/dist/index.umd.js">
+</script>
 
     <style>
         * {
