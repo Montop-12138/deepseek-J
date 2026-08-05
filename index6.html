@@ -8,6 +8,7 @@
     <script src="https://web.sdk.qcloud.com/cloudbase/v1.6.0/cloudbase.full.js">
     </script>
     <style>
+        /* ===== 所有样式保持不变 ===== */
         * {
             margin: 0;
             padding: 0;
@@ -38,7 +39,6 @@
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
         }
 
-        /* ========== 标题栏 ========== */
         h1 {
             font-size: 18px;
             color: #ffffff;
@@ -109,9 +109,27 @@
             border-radius: 10px;
             font-weight: 600;
             margin-left: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .sync-badge:hover {
+            transform: scale(1.05);
         }
         .sync-badge.offline {
             background: rgba(239, 68, 68, 0.8);
+        }
+        .sync-badge.syncing {
+            background: rgba(251, 191, 36, 0.8);
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
         }
 
         .ds-icon {
@@ -164,8 +182,11 @@
         .toggle-collapse-btn {
             background: rgba(255, 255, 255, 0.1);
         }
+        .btn-sync-manual {
+            background: rgba(255, 255, 255, 0.15);
+            font-size: 14px;
+        }
 
-        /* ========== 折叠 ========== */
         .collapsible-section {
             transition: max-height 0.35s ease, opacity 0.3s ease, margin 0.3s ease;
             max-height: 500px;
@@ -200,7 +221,6 @@
             font-size: 11px;
         }
 
-        /* ========== API Key ========== */
         .api-section {
             display: flex;
             gap: 6px;
@@ -242,7 +262,6 @@
             transform: scale(0.97);
         }
 
-        /* ========== 控制栏 ========== */
         .control-bar {
             display: flex;
             flex-wrap: wrap;
@@ -316,7 +335,6 @@
             transform: scale(0.95);
         }
 
-        /* ========== 分享栏 ========== */
         .share-bar {
             display: flex;
             gap: 4px;
@@ -380,7 +398,6 @@
             cursor: pointer;
         }
 
-        /* ========== 会话标签栏 ========== */
         .session-bar {
             display: flex;
             gap: 4px;
@@ -452,7 +469,6 @@
             transform: scale(0.95);
         }
 
-        /* ========== 聊天框 ========== */
         .chat-box {
             flex: 1;
             background: rgba(255, 255, 255, 0.2);
@@ -476,7 +492,6 @@
             border-radius: 10px;
         }
 
-        /* ===== 消息包装器 ===== */
         .message-wrapper {
             position: relative;
             display: flex;
@@ -490,7 +505,6 @@
             align-items: flex-end;
         }
 
-        /* 消息操作按钮 - 悬浮显示 */
         .message-wrapper .msg-actions {
             display: none;
             gap: 4px;
@@ -501,7 +515,6 @@
         .message-wrapper:hover .msg-actions {
             display: flex;
         }
-        /* 触屏设备：点击消息显示操作按钮 */
         .message-wrapper.touch-show .msg-actions {
             display: flex;
         }
@@ -535,12 +548,10 @@
             background: #dbe4fe;
         }
 
-        /* 选择模式下隐藏操作按钮 */
         .message-wrapper.select-mode .msg-actions {
             display: none !important;
         }
 
-        /* 选择复选框 */
         .message-wrapper .msg-checkbox {
             display: none;
             margin-right: 6px;
@@ -561,7 +572,6 @@
             flex: 1;
         }
 
-        /* ===== 消息气泡 ===== */
         .message {
             max-width: 85%;
             padding: 10px 16px;
@@ -606,7 +616,6 @@
             border-bottom-left-radius: 4px;
         }
 
-        /* ===== 编辑模式 ===== */
         .message.edit-mode .message-content {
             display: none;
         }
@@ -673,7 +682,6 @@
             }
         }
 
-        /* ========== 输入区域 ========== */
         .input-section {
             display: flex;
             gap: 8px;
@@ -726,7 +734,6 @@
             cursor: not-allowed;
         }
 
-        /* ========== 底部状态 ========== */
         .status-tip {
             text-align: center;
             font-size: 10px;
@@ -747,6 +754,13 @@
             height: 6px;
             border-radius: 50%;
             background: #10b981;
+        }
+        .status-tip .sync-status .sync-dot.error {
+            background: #ef4444;
+        }
+        .status-tip .sync-status .sync-dot.syncing {
+            background: #f59e0b;
+            animation: pulse 1s infinite;
         }
 
         .toast {
@@ -791,6 +805,7 @@
                 <span class="sync-badge" id="syncBadge">☁️ 云端</span>
             </div>
             <div class="header-actions">
+                <button class="btn-sync-manual" id="manualSyncBtn" title="手动同步">🔄</button>
                 <button class="toggle-collapse-btn" id="toggleCollapseBtn">⬆ 收起</button>
                 <button class="btn-new" id="newSessionBtn">➕</button>
             </div>
@@ -853,7 +868,7 @@
 
     <script>
         // ============================================================
-        //  🎭 文游角色设定（改这里就行）
+        //  🎭 系统提示词
         // ============================================================
         const SYSTEM_PROMPT = '你是一个沉浸式文字游戏的主持人。';
 
@@ -867,8 +882,11 @@
         let selectMode = false;
         let selectedIndices = new Set();
         let isCloudReady = false;
-        // 用于触屏设备显示操作按钮
+        let isSyncing = false;
         let touchMessageIndex = null;
+
+        // 云端数据集合名称
+        const COLLECTION_NAME = 'conversations';
 
         // ============================================================
         //  DOM 引用
@@ -884,6 +902,9 @@
         const toggleBtn = document.getElementById('toggleCollapseBtn');
         const collapsibleSection = document.getElementById('collapsibleSection');
         const syncBadge = document.getElementById('syncBadge');
+        const manualSyncBtn = document.getElementById('manualSyncBtn');
+        const syncDot = document.getElementById('syncDot');
+        const syncText = document.getElementById('syncText');
 
         const maxTokensSlider = document.getElementById('maxTokensSlider');
         const maxTokensDisplay = document.getElementById('maxTokensDisplay');
@@ -911,73 +932,251 @@
             clearTimeout(toastTimer);
             toastTimer = setTimeout(function() {
                 toast.classList.remove('show');
-            }, 2000);
+            }, 2500);
         }
 
         // ============================================================
-        //  自检函数
+        //  同步状态UI
         // ============================================================
-        function forceEnableInput() {
-            if (userInput) {
-                userInput.disabled = false;
-                userInput.style.opacity = '1';
-                userInput.style.pointerEvents = 'auto';
-            }
-            if (sendBtn) {
-                sendBtn.disabled = false;
-            }
-            if (userInput) {
-                userInput.focus();
+        function setSyncStatus(status) {
+            // status: 'synced', 'syncing', 'error', 'offline'
+            syncDot.className = 'sync-dot';
+            if (status === 'synced') {
+                syncDot.className = 'sync-dot';
+                syncText.textContent = '已同步';
+                syncBadge.textContent = '☁️ 云端';
+                syncBadge.className = 'sync-badge';
+            } else if (status === 'syncing') {
+                syncDot.className = 'sync-dot syncing';
+                syncText.textContent = '同步中...';
+                syncBadge.textContent = '⏳ 同步中';
+                syncBadge.className = 'sync-badge syncing';
+            } else if (status === 'error') {
+                syncDot.className = 'sync-dot error';
+                syncText.textContent = '同步失败';
+                syncBadge.textContent = '⚠️ 同步失败';
+                syncBadge.className = 'sync-badge offline';
+            } else if (status === 'offline') {
+                syncDot.className = 'sync-dot error';
+                syncText.textContent = '离线模式';
+                syncBadge.textContent = '📡 离线';
+                syncBadge.className = 'sync-badge offline';
             }
         }
 
         // ============================================================
-        //  折叠
-        // ============================================================
-        toggleBtn.addEventListener('click', function() {
-            isCollapsed = !isCollapsed;
-            if (isCollapsed) {
-                collapsibleSection.classList.add('collapsed');
-                toggleBtn.textContent = '⬇ 展开';
-                document.body.classList.add('collapsed-mode');
-            } else {
-                collapsibleSection.classList.remove('collapsed');
-                toggleBtn.textContent = '⬆ 收起';
-                document.body.classList.remove('collapsed-mode');
-            }
-        });
-
-        // ============================================================
-        //  云端
+        //  云端初始化
         // ============================================================
         const ENV_ID = 'deepseek-chat-d5gg0748z3b9dfe24';
+        let cloudApp = null;
+        let cloudDb = null;
 
         async function initCloud() {
             try {
-                const app = cloudbase.init({ env: ENV_ID });
-                const auth = app.auth();
+                cloudApp = cloudbase.init({ env: ENV_ID });
+                const auth = cloudApp.auth();
                 const loginState = await auth.getLoginState();
                 if (!loginState) {
                     await auth.anonymousAuthProvider().signIn();
                 }
+                cloudDb = cloudApp.database();
                 isCloudReady = true;
-                syncBadge.textContent = '☁️ 云端';
-                syncBadge.className = 'sync-badge';
-                document.getElementById('syncText').textContent = '已同步';
-                document.getElementById('syncDot').className = 'sync-dot';
+                setSyncStatus('synced');
+                console.log('✅ 云端初始化成功');
                 return true;
             } catch (e) {
-                syncBadge.textContent = '📡 离线';
-                syncBadge.className = 'sync-badge offline';
-                document.getElementById('syncText').textContent = '离线模式';
-                document.getElementById('syncDot').className = 'sync-dot error';
+                console.error('❌ 云端初始化失败:', e);
                 isCloudReady = false;
+                setSyncStatus('offline');
                 return false;
             }
         }
 
         // ============================================================
-        //  数据管理
+        //  云端数据操作函数
+        // ============================================================
+        async function loadFromCloud() {
+            if (!isCloudReady || !cloudDb) {
+                console.log('云端未就绪，跳过拉取');
+                return null;
+            }
+            try {
+                setSyncStatus('syncing');
+                const res = await cloudDb.collection(COLLECTION_NAME)
+                    .orderBy('updateTime', 'desc')
+                    .limit(100)
+                    .get();
+
+                console.log('📥 从云端拉取数据:', res.data ? res.data.length : 0, '条');
+                if (res.data && res.data.length > 0) {
+                    // 解析数据
+                    const cloudSessions = res.data.map(item => ({
+                        id: item.id,
+                        name: item.name || '新对话',
+                        messages: item.messages || [],
+                        _cloudId: item._id // 保存云端ID用于更新
+                    }));
+                    setSyncStatus('synced');
+                    return cloudSessions;
+                }
+                setSyncStatus('synced');
+                return [];
+            } catch (e) {
+                console.error('❌ 拉取云端数据失败:', e);
+                setSyncStatus('error');
+                return null;
+            }
+        }
+
+        async function syncToCloud(sessionsData) {
+            if (!isCloudReady || !cloudDb) {
+                console.log('云端未就绪，跳过同步');
+                return false;
+            }
+            if (isSyncing) {
+                console.log('正在同步中，跳过');
+                return false;
+            }
+            try {
+                isSyncing = true;
+                setSyncStatus('syncing');
+
+                const collection = cloudDb.collection(COLLECTION_NAME);
+
+                // 1. 获取云端所有现有数据
+                const existingRes = await collection.limit(100).get();
+                const existingIds = existingRes.data.map(item => item._id);
+
+                // 2. 删除云端所有旧数据
+                for (const id of existingIds) {
+                    try {
+                        await collection.doc(id).remove();
+                    } catch (e) {
+                        console.warn('删除旧数据失败:', id, e);
+                    }
+                }
+
+                // 3. 上传新数据
+                for (const session of sessionsData) {
+                    await collection.add({
+                        id: session.id,
+                        name: session.name || '新对话',
+                        messages: session.messages || [],
+                        updateTime: new Date().toISOString(),
+                        userId: 'anonymous'
+                    });
+                }
+
+                console.log('📤 同步到云端成功:', sessionsData.length, '个对话');
+                setSyncStatus('synced');
+                isSyncing = false;
+                return true;
+            } catch (e) {
+                console.error('❌ 同步到云端失败:', e);
+                setSyncStatus('error');
+                isSyncing = false;
+                return false;
+            }
+        }
+
+        // ============================================================
+        //  数据合并策略：云端优先
+        // ============================================================
+        async function mergeCloudAndLocal(cloudData) {
+            if (cloudData === null) {
+                // 云端拉取失败，使用本地数据
+                return;
+            }
+
+            if (cloudData.length === 0) {
+                // 云端没有数据，把本地数据同步上去
+                if (sessions.length > 0) {
+                    await syncToCloud(sessions);
+                }
+                return;
+            }
+
+            // 云端有数据：比较时间戳，使用最新的
+            // 简单策略：如果云端有数据，直接使用云端数据
+            // 但保留本地作为备份，如果云端数据更旧则忽略
+
+            // 检查云端数据是否有效
+            let validCloud = true;
+            for (const s of cloudData) {
+                if (!s.id || !s.messages) {
+                    validCloud = false;
+                    break;
+                }
+            }
+
+            if (!validCloud) {
+                console.log('云端数据格式无效，保留本地');
+                await syncToCloud(sessions);
+                return;
+            }
+
+            // 比较本地和云端的"最后更新时间"
+            // 使用对话数量 + 最后消息时间作为简单判断
+            let cloudHasNewer = false;
+            if (cloudData.length > 0) {
+                // 获取云端最新消息时间
+                let cloudLatest = 0;
+                for (const s of cloudData) {
+                    if (s.messages && s.messages.length > 0) {
+                        // 尝试从消息中获取时间
+                        for (const msg of s.messages) {
+                            if (msg.timestamp) {
+                                const t = new Date(msg.timestamp).getTime();
+                                if (t > cloudLatest) cloudLatest = t;
+                            }
+                        }
+                    }
+                }
+
+                // 获取本地最新消息时间
+                let localLatest = 0;
+                for (const s of sessions) {
+                    if (s.messages && s.messages.length > 0) {
+                        for (const msg of s.messages) {
+                            if (msg.timestamp) {
+                                const t = new Date(msg.timestamp).getTime();
+                                if (t > localLatest) localLatest = t;
+                            }
+                        }
+                    }
+                }
+
+                // 如果云端数据更新，或者本地没有数据，使用云端
+                if (cloudLatest > localLatest || sessions.length === 0) {
+                    cloudHasNewer = true;
+                }
+            }
+
+            if (cloudHasNewer || sessions.length === 0) {
+                // 使用云端数据
+                console.log('☁️ 使用云端数据');
+                sessions = cloudData;
+                // 更新当前会话ID
+                if (sessions.length > 0) {
+                    const savedCurrent = localStorage.getItem('deepseek_current_session');
+                    const found = sessions.some(s => s.id === savedCurrent);
+                    currentSessionId = found ? savedCurrent : sessions[0].id;
+                } else {
+                    // 如果没有会话，创建一个
+                    const s = createSession('对话 1');
+                    sessions.push(s);
+                    currentSessionId = s.id;
+                }
+                saveSessionsToLocal();
+            } else {
+                // 本地数据更新，同步到云端
+                console.log('💻 使用本地数据（更新）');
+                await syncToCloud(sessions);
+            }
+        }
+
+        // ============================================================
+        //  数据管理（扩展）
         // ============================================================
         function generateId() {
             return Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 4);
@@ -1032,6 +1231,51 @@
             return sessions[0];
         }
 
+        // ============================================================
+        //  🔄 核心同步函数：每次修改后调用
+        // ============================================================
+        async function afterDataChange() {
+            saveSessionsToLocal();
+            // 异步同步到云端，不阻塞UI
+            if (isCloudReady) {
+                await syncToCloud(sessions);
+            }
+            renderChat();
+            renderSessionTabs();
+        }
+
+        // ============================================================
+        //  手动同步
+        // ============================================================
+        async function manualSync() {
+            if (!isCloudReady) {
+                showToast('云端未连接，请检查网络');
+                await initCloud();
+                if (!isCloudReady) {
+                    showToast('❌ 云端连接失败');
+                    return;
+                }
+            }
+
+            showToast('🔄 正在同步...');
+            const cloudData = await loadFromCloud();
+            if (cloudData !== null) {
+                await mergeCloudAndLocal(cloudData);
+                renderChat();
+                renderSessionTabs();
+                var session = getCurrentSession();
+                renameInput.value = session.name || '';
+                showToast('✅ 同步完成');
+            } else {
+                showToast('❌ 同步失败，请检查网络');
+            }
+        }
+
+        manualSyncBtn.addEventListener('click', manualSync);
+
+        // ============================================================
+        //  会话操作（扩展：每次操作后同步）
+        // ============================================================
         function switchSession(sessionId) {
             if (sessionId === currentSessionId) return;
             exitSelectMode();
@@ -1043,7 +1287,7 @@
             renameInput.value = session.name || '';
         }
 
-        function deleteSession(sessionId) {
+        async function deleteSession(sessionId) {
             if (sessions.length <= 1) {
                 showToast('至少保留一个对话');
                 return;
@@ -1059,50 +1303,43 @@
                 currentSessionId = sessions[0].id;
                 localStorage.setItem('deepseek_current_session', currentSessionId);
             }
-            saveSessionsToLocal();
-            renderSessionTabs();
-            renderChat();
+            await afterDataChange();
             showToast('已删除');
         }
 
-        function addNewSession() {
+        async function addNewSession() {
             exitSelectMode();
             var s = createSession('新对话');
             sessions.push(s);
             currentSessionId = s.id;
-            saveSessionsToLocal();
-            renderSessionTabs();
-            renderChat();
+            await afterDataChange();
             renameInput.value = s.name || '';
             if (API_KEY) userInput.focus();
             showToast('✅ 已创建新对话');
         }
 
-        function renameCurrentSession(newName) {
+        async function renameCurrentSession(newName) {
             var session = getCurrentSession();
             if (!session) return;
             var trimmed = newName.trim();
             if (!trimmed) { showToast('请输入有效名称'); return; }
             session.name = trimmed;
-            saveSessionsToLocal();
-            renderSessionTabs();
+            await afterDataChange();
             showToast('✅ 已重命名为: ' + trimmed);
         }
 
         // ============================================================
-        //  消息操作（编辑/删除）
+        //  消息操作（扩展：每次操作后同步）
         // ============================================================
-        function deleteMessage(index) {
+        async function deleteMessage(index) {
             var session = getCurrentSession();
             if (!session) return;
             if (index < 0 || index >= session.messages.length) return;
             var msg = session.messages[index];
             if (msg.role === 'loading' || msg.role === 'error') return;
 
-            // 如果删除的是用户消息，同时删除它后面的所有消息（包括AI回复）
             var deleteCount = 1;
             if (msg.role === 'user') {
-                // 从下一条开始，删除所有直到遇到下一个user消息或结尾
                 var nextIndex = index + 1;
                 while (nextIndex < session.messages.length) {
                     var nextMsg = session.messages[nextIndex];
@@ -1114,8 +1351,7 @@
 
             if (!confirm('确定删除这条消息' + (deleteCount > 1 ? '及其后续回复' : '') + '吗？')) return;
             session.messages.splice(index, deleteCount);
-            saveSessionsToLocal();
-            renderChat();
+            await afterDataChange();
             showToast('已删除');
         }
 
@@ -1125,12 +1361,10 @@
             if (index < 0 || index >= session.messages.length) return;
             var msg = session.messages[index];
             if (msg.role === 'error' || msg.role === 'loading' || msg.role === 'assistant') {
-                // 只允许编辑用户消息
                 showToast('只能编辑用户消息');
                 return;
             }
 
-            // 找到对应的消息元素，切换到编辑模式
             var wrappers = chatBox.querySelectorAll('.message-wrapper');
             if (index < wrappers.length) {
                 var wrapper = wrappers[index];
@@ -1150,7 +1384,7 @@
             }
         }
 
-        function saveEditMessage(index) {
+        async function saveEditMessage(index) {
             var session = getCurrentSession();
             if (!session) return;
             if (index < 0 || index >= session.messages.length) return;
@@ -1168,22 +1402,17 @@
                             showToast('内容不能为空');
                             return;
                         }
-                        // 更新消息内容
                         msg.content = newContent;
                         msgDiv.classList.remove('edit-mode');
-                        saveSessionsToLocal();
 
-                        // 删除该用户消息之后的所有消息（AI回复）
                         var nextIndex = index + 1;
                         if (nextIndex < session.messages.length) {
                             session.messages.splice(nextIndex);
-                            saveSessionsToLocal();
                         }
 
-                        renderChat();
+                        await afterDataChange();
                         showToast('✅ 已修改，正在重新生成回复...');
 
-                        // 重新发送修改后的消息
                         setTimeout(function() {
                             sendMessage(newContent, true);
                         }, 200);
@@ -1199,11 +1428,10 @@
         }
 
         // ============================================================
-        //  触屏设备：点击消息显示操作按钮
+        //  触屏设备
         // ============================================================
         function toggleTouchActions(index) {
             var wrappers = chatBox.querySelectorAll('.message-wrapper');
-            // 清除其他高亮
             for (var i = 0; i < wrappers.length; i++) {
                 if (i !== index) {
                     wrappers[i].classList.remove('touch-show');
@@ -1212,7 +1440,6 @@
             if (index >= 0 && index < wrappers.length) {
                 var wrapper = wrappers[index];
                 var msg = getCurrentSession().messages[index];
-                // 不对 loading 和 error 显示操作按钮
                 if (msg && msg.role !== 'loading' && msg.role !== 'error') {
                     wrapper.classList.toggle('touch-show');
                 }
@@ -1273,7 +1500,6 @@
                     wrapper.classList.add('user-wrapper');
                 }
 
-                // 选择模式复选框
                 if (selectMode && msg.role !== 'error' && msg.role !== 'loading') {
                     wrapper.classList.add('select-mode');
                     var checkbox = document.createElement('input');
@@ -1293,13 +1519,11 @@
                 if (msg.role === 'error' || msg.role === 'loading') {
                     div.textContent = msg.content;
                 } else {
-                    // 消息内容
                     var contentSpan = document.createElement('span');
                     contentSpan.className = 'message-content';
                     contentSpan.innerHTML = msg.content.replace(/\n/g, '<br>');
                     div.appendChild(contentSpan);
 
-                    // 编辑文本框（仅用户消息可编辑）
                     if (msg.role === 'user') {
                         var textarea = document.createElement('textarea');
                         textarea.className = 'edit-textarea';
@@ -1330,11 +1554,9 @@
                         div.appendChild(editActions);
                     }
 
-                    // 操作按钮（非选择模式下显示）
                     if (!selectMode && msg.role !== 'error' && msg.role !== 'loading') {
                         var actions = document.createElement('div');
                         actions.className = 'msg-actions';
-                        // 编辑按钮（仅用户消息可编辑）
                         if (msg.role === 'user') {
                             var editBtn = document.createElement('button');
                             editBtn.className = 'edit-msg-btn';
@@ -1359,10 +1581,8 @@
                         actions.appendChild(delBtn);
                         div.appendChild(actions);
 
-                        // 触屏设备点击消息切换操作按钮
                         div.addEventListener('click', (function(idx) {
                             return function(e) {
-                                // 防止点击编辑按钮时触发
                                 if (e.target.closest('.edit-actions') || e.target.closest('.msg-actions')) return;
                                 toggleTouchActions(idx);
                             };
@@ -1408,8 +1628,7 @@
             } else {
                 session.messages.push({ role: 'assistant', content: '✅ API Key 已更新！' });
             }
-            saveSessionsToLocal();
-            renderChat();
+            afterDataChange();
             showToast('✅ API Key 已保存');
             forceEnableInput();
         });
@@ -1616,7 +1835,6 @@
         //  📤 发送消息
         // ============================================================
         async function sendMessage(msg, isEdit) {
-            // 如果传入的是事件对象或空值，从输入框取
             if (typeof msg !== 'string') {
                 msg = userInput.value.trim();
             }
@@ -1625,26 +1843,22 @@
             var key = localStorage.getItem('deepseek_api_key');
             if (!key) { showToast('请先保存 API Key'); return; }
 
-            // 如果是编辑后重新发送，消息已经添加到会话中了，不需要再次添加
             if (!isEdit) {
                 var session = getCurrentSession();
-                session.messages.push({ role: 'user', content: msg });
+                session.messages.push({ role: 'user', content: msg, timestamp: new Date().toISOString() });
                 userInput.value = '';
                 saveSessionsToLocal();
                 renderChat();
             }
 
-            // 获取当前会话（可能已经添加了用户消息）
             var session = getCurrentSession();
 
-            // 移除旧的 loading 状态
             var newMsgs = [];
             for (var i = 0; i < session.messages.length; i++) {
                 if (session.messages[i].role !== 'loading') newMsgs.push(session.messages[i]);
             }
             session.messages = newMsgs;
 
-            // 添加 loading
             session.messages.push({ role: 'loading', content: '🤔 思考中...' });
             saveSessionsToLocal();
             renderChat();
@@ -1679,7 +1893,6 @@
 
                 var data = await response.json();
 
-                // 移除 loading
                 var newMsgs2 = [];
                 for (var j = 0; j < session.messages.length; j++) {
                     if (session.messages[j].role !== 'loading') newMsgs2.push(session.messages[j]);
@@ -1693,12 +1906,12 @@
 
                 if (data.choices && data.choices[0]) {
                     var reply = data.choices[0].message.content;
-                    session.messages.push({ role: 'assistant', content: reply });
+                    session.messages.push({ role: 'assistant', content: reply, timestamp: new Date().toISOString() });
                     if (session.name === '新对话' && session.messages.length > 0) {
                         session.name = getSessionName(session.messages);
                     }
-                    saveSessionsToLocal();
-                    renderChat();
+                    // 保存并同步
+                    await afterDataChange();
                     renderSessionTabs();
                 } else {
                     throw new Error('API 返回异常');
@@ -1722,8 +1935,7 @@
                     errorText = '❌ 网络连接失败';
                 }
                 session.messages.push({ role: 'error', content: errorText });
-                saveSessionsToLocal();
-                renderChat();
+                await afterDataChange();
             } finally {
                 sendBtn.disabled = false;
                 userInput.focus();
@@ -1752,7 +1964,6 @@
 
         newSessionBtn.addEventListener('click', addNewSession);
 
-        // 点击其他地方取消触屏高亮
         document.addEventListener('click', function(e) {
             if (!e.target.closest('.message-wrapper') && !e.target.closest('.msg-actions')) {
                 document.querySelectorAll('.message-wrapper.touch-show').forEach(function(el) {
@@ -1762,12 +1973,42 @@
         });
 
         // ============================================================
+        //  forceEnableInput
+        // ============================================================
+        function forceEnableInput() {
+            if (userInput) {
+                userInput.disabled = false;
+                userInput.style.opacity = '1';
+                userInput.style.pointerEvents = 'auto';
+            }
+            if (sendBtn) {
+                sendBtn.disabled = false;
+            }
+            if (userInput) {
+                userInput.focus();
+            }
+        }
+
+        // ============================================================
         //  🚀 初始化
         // ============================================================
         async function init() {
-            loadSessionsFromLocal();
-            renderSessionTabs();
+            // 1. 初始化云端
+            await initCloud();
 
+            // 2. 加载本地数据
+            loadSessionsFromLocal();
+
+            // 3. 尝试从云端拉取并合并
+            if (isCloudReady) {
+                const cloudData = await loadFromCloud();
+                if (cloudData !== null) {
+                    await mergeCloudAndLocal(cloudData);
+                }
+            }
+
+            // 4. 渲染UI
+            renderSessionTabs();
             var session = getCurrentSession();
             renameInput.value = session.name || '';
 
@@ -1788,10 +2029,8 @@
                 apiKeyInput.focus();
             }
 
-            initCloud();
             forceEnableInput();
-
-            console.log('✅ 初始化完成（含编辑/删除功能）');
+            console.log('✅ 初始化完成（含多端实时同步功能）');
         }
 
         init();
@@ -1800,6 +2039,7 @@
         window.sendMessage = sendMessage;
         window.SYSTEM_PROMPT = SYSTEM_PROMPT;
         window.forceEnableInput = forceEnableInput;
+        window.manualSync = manualSync;
     </script>
 </body>
 </html>
