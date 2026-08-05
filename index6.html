@@ -4,13 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>DeepSeek 智能助手</title>
-    
-    <!-- ===== 腾讯云开发 SDK - ES Module 方式 ===== -->
-<!-- ===== 腾讯云开发 SDK - 传统方式 ===== -->
-<script src="https://cdn.jsdelivr.net/npm/@cloudbase/js-sdk@1.7.0/dist/index.umd.js">
-</script>
-
+    <!-- 腾讯云开发 SDK - 使用已验证可用的地址 -->
+    <script src="https://static.cloudbase.net/cloudbase-js-sdk/2.28.6/cloudbase.full.js">
+    </script>
     <style>
+        /* ===== 所有样式保持不变 ===== */
         * {
             margin: 0;
             padding: 0;
@@ -927,7 +925,8 @@
         }
 
         // ============================================================
-        //  同步状态UI        // ============================================================
+        //  同步状态UI
+        // ============================================================
         function setSyncStatus(status) {
             syncDot.className = 'sync-dot';
             if (status === 'synced') {
@@ -962,6 +961,13 @@
 
         async function initCloud() {
             try {
+                // 检查 cloudbase 是否已加载
+                if (typeof cloudbase === 'undefined') {
+                    console.error('❌ cloudbase SDK 未加载');
+                    isCloudReady = false;
+                    setSyncStatus('offline');
+                    return false;
+                }
                 cloudApp = cloudbase.init({ env: ENV_ID });
                 const auth = cloudApp.auth();
                 const loginState = await auth.getLoginState();
@@ -1959,10 +1965,13 @@
         //  🚀 初始化
         // ============================================================
         async function init() {
+            // 1. 初始化云端
             await initCloud();
 
+            // 2. 加载本地数据
             loadSessionsFromLocal();
 
+            // 3. 尝试从云端拉取并合并
             if (isCloudReady) {
                 const cloudData = await loadFromCloud();
                 if (cloudData !== null) {
@@ -1970,6 +1979,7 @@
                 }
             }
 
+            // 4. 渲染UI
             renderSessionTabs();
             var session = getCurrentSession();
             renameInput.value = session.name || '';
@@ -1997,6 +2007,7 @@
 
         init();
 
+        // 暴露全局
         window.sendMessage = sendMessage;
         window.SYSTEM_PROMPT = SYSTEM_PROMPT;
         window.forceEnableInput = forceEnableInput;
