@@ -200,13 +200,14 @@
             padding: 3px 8px;
         }
 
-        /* ===== 折叠区域 - 可滚动 ===== */
+        /* ===== 折叠区域 - 关键修复 ===== */
         .collapsible-section {
-            transition: max-height 0.35s ease, opacity 0.3s ease, margin 0.3s ease;
+            transition: max-height 0.35s ease, opacity 0.3s ease, margin 0.3s ease, padding 0.3s ease;
             max-height: 300px;
             opacity: 1;
             overflow: hidden;
             margin-bottom: 2px;
+            padding: 0;
         }
         .collapsible-section.collapsed {
             max-height: 0 !important;
@@ -215,12 +216,27 @@
             padding: 0 !important;
             overflow: hidden;
         }
-        .collapsed-mode .collapsible-section {
+        /* 折叠状态下隐藏所有子元素内容（防止闪烁） */
+        .collapsible-section.collapsed * {
             max-height: 0 !important;
-            opacity: 0;
+            opacity: 0 !important;
             margin: 0 !important;
             padding: 0 !important;
+            overflow: hidden !important;
+            border: none !important;
         }
+        /* 但保留输入框占位（避免布局抖动） */
+        .collapsible-section.collapsed .api-section {
+            display: none !important;
+        }
+        .collapsible-section.collapsed .control-bar {
+            display: none !important;
+        }
+        .collapsible-section.collapsed .share-bar {
+            display: none !important;
+        }
+
+        /* 折叠后的标题栏紧凑模式 */
         .collapsed-mode h1 {
             padding: 4px 10px;
             min-height: 34px;
@@ -902,7 +918,7 @@
                 </div>
                 <div class="header-actions">
                     <button class="btn-sync-manual" id="manualSyncBtn" title="手动同步">🔄</button>
-                    <button class="toggle-collapse-btn" id="toggleCollapseBtn">⬆</button>
+                    <button class="toggle-collapse-btn" id="toggleCollapseBtn">⬆ 收起</button>
                     <button class="btn-new" id="newSessionBtn">➕</button>
                 </div>
             </h1>
@@ -1359,6 +1375,22 @@
         }
 
         manualSyncBtn.addEventListener('click', manualSync);
+
+        // ============================================================
+        //  折叠功能
+        // ============================================================
+        toggleBtn.addEventListener('click', function() {
+            isCollapsed = !isCollapsed;
+            if (isCollapsed) {
+                collapsibleSection.classList.add('collapsed');
+                toggleBtn.textContent = '⬇ 展开';
+                document.body.classList.add('collapsed-mode');
+            } else {
+                collapsibleSection.classList.remove('collapsed');
+                toggleBtn.textContent = '⬆ 收起';
+                document.body.classList.remove('collapsed-mode');
+            }
+        });
 
         // ============================================================
         //  会话操作
@@ -2119,7 +2151,7 @@
             }
 
             forceEnableInput();
-            console.log('✅ 初始化完成（index7 - 手机优化版）');
+            console.log('✅ 初始化完成（index7 - 手机优化版 + 折叠修复）');
         }
 
         init();
