@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>DeepSeek 智能助手</title>
-    <!-- 腾讯云开发 SDK -->
     <script src="https://web.sdk.qcloud.com/cloudbase/v1.6.0/cloudbase.full.js">
     </script>
     <style>
@@ -13,7 +12,6 @@
             padding: 0;
             box-sizing: border-box;
         }
-
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             background: linear-gradient(145deg, #f0f7ff 0%, #e6f0fa 50%, #dce8f5 100%);
@@ -24,7 +22,6 @@
             margin: 0 auto;
             padding: 8px 12px;
         }
-
         .glass-container {
             flex: 1;
             display: flex;
@@ -37,8 +34,6 @@
             border: 1px solid rgba(255, 255, 255, 0.5);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
         }
-
-        /* ========== 标题栏 ========== */
         h1 {
             font-size: 18px;
             color: #ffffff;
@@ -80,7 +75,6 @@
             box-shadow: -80px -20px 0 15px rgba(255, 255, 255, 0.08), -150px -50px 0 8px rgba(255, 255, 255, 0.12);
             pointer-events: none;
         }
-
         h1 .title-left {
             display: flex;
             align-items: center;
@@ -113,7 +107,6 @@
         .sync-badge.offline {
             background: rgba(239, 68, 68, 0.8);
         }
-
         .ds-icon {
             display: inline-flex;
             align-items: center;
@@ -134,7 +127,6 @@
             background-clip: text;
             letter-spacing: 0.5px;
         }
-
         .header-actions {
             display: flex;
             gap: 6px;
@@ -164,8 +156,6 @@
         .toggle-collapse-btn {
             background: rgba(255, 255, 255, 0.1);
         }
-
-        /* ========== 折叠 ========== */
         .collapsible-section {
             transition: max-height 0.35s ease, opacity 0.3s ease, margin 0.3s ease;
             max-height: 500px;
@@ -199,8 +189,6 @@
             padding: 2px 10px;
             font-size: 11px;
         }
-
-        /* ========== API Key ========== */
         .api-section {
             display: flex;
             gap: 6px;
@@ -241,8 +229,6 @@
         .api-section button:active {
             transform: scale(0.97);
         }
-
-        /* ========== 控制栏 ========== */
         .control-bar {
             display: flex;
             flex-wrap: wrap;
@@ -315,8 +301,6 @@
         .control-bar .rename-group button:active {
             transform: scale(0.95);
         }
-
-        /* ========== 分享栏 ========== */
         .share-bar {
             display: flex;
             gap: 4px;
@@ -379,8 +363,6 @@
             height: 14px;
             cursor: pointer;
         }
-
-        /* ========== 会话标签栏 ========== */
         .session-bar {
             display: flex;
             gap: 4px;
@@ -451,8 +433,6 @@
         .btn-add-session:active {
             transform: scale(0.95);
         }
-
-        /* ========== 聊天框 ========== */
         .chat-box {
             flex: 1;
             background: rgba(255, 255, 255, 0.2);
@@ -475,7 +455,6 @@
             background: rgba(79, 172, 254, 0.3);
             border-radius: 10px;
         }
-
         .message {
             max-width: 85%;
             padding: 10px 16px;
@@ -529,8 +508,6 @@
                 transform: translateY(0) scale(1);
             }
         }
-
-        /* ========== 输入区域 ========== */
         .input-section {
             display: flex;
             gap: 8px;
@@ -582,8 +559,6 @@
             box-shadow: none;
             cursor: not-allowed;
         }
-
-        /* ========== 底部状态 ========== */
         .status-tip {
             text-align: center;
             font-size: 10px;
@@ -605,7 +580,6 @@
             border-radius: 50%;
             background: #10b981;
         }
-
         .toast {
             position: fixed;
             bottom: 90px;
@@ -626,7 +600,6 @@
             opacity: 1;
             transform: translateX(-50%) scale(1);
         }
-
         @supports (padding: max(0px)) {
             body {
                 padding-left: max(8px, env(safe-area-inset-left));
@@ -639,7 +612,6 @@
 </head>
 <body>
     <div class="glass-container">
-        <!-- ===== 标题栏 ===== -->
         <h1>
             <div class="title-left">
                 <span class="ds-icon"><span>DS</span></span>
@@ -653,13 +625,11 @@
             </div>
         </h1>
 
-        <!-- ===== 折叠区域 ===== -->
         <div class="collapsible-section" id="collapsibleSection">
             <div class="api-section">
                 <input type="password" id="apiKeyInput" placeholder="输入 API Key" />
                 <button id="saveKeyBtn">保存</button>
             </div>
-
             <div class="control-bar">
                 <div class="slider-group">
                     <label>📝</label>
@@ -671,7 +641,6 @@
                     <button id="renameBtn">重命名</button>
                 </div>
             </div>
-
             <div class="share-bar">
                 <button class="btn-copy" id="copyLastBtn">📋 复制</button>
                 <button class="btn-copy-all" id="copyAllBtn">📄 全部</button>
@@ -685,13 +654,9 @@
             </div>
         </div>
 
-        <!-- ===== 会话标签 ===== -->
         <div class="session-bar" id="sessionBar"></div>
-
-        <!-- ===== 聊天框 ===== -->
         <div class="chat-box" id="chatBox"></div>
 
-        <!-- ===== 底部状态 ===== -->
         <div class="status-tip" id="statusTip">
             <span class="sync-status" id="syncStatus">
                 <span class="sync-dot" id="syncDot"></span>
@@ -700,7 +665,6 @@
             💡 DeepSeek-V4-Flash
         </div>
 
-        <!-- ===== 输入区域 ===== -->
         <div class="input-section">
             <textarea id="userInput" rows="1" placeholder="输入消息..." disabled></textarea>
             <button id="sendBtn" disabled>发送</button>
@@ -710,15 +674,9 @@
 
     <script>
         // ============================================================
-        //  🎭 【文游角色设定】—— 在这里修改你的角色设定！
-        //  每次对话都会自动带上这个设定，AI 会按这个角色回复。
-        //  修改后保存即可生效，不用翻到下面找代码。
+        //  🎭 文游角色设定（改这里就行）
         // ============================================================
-        const SYSTEM_PROMPT = '你是一个沉浸式文字游戏的主持人。请用第二人称"你"描述场景和事件。
-        // ============================================================
-        //  腾讯云开发配置
-        // ============================================================
-        const ENV_ID = 'deepseek-chat-d5gg0748z3b9dfe24';
+        const SYSTEM_PROMPT = '你是一个沉浸式文字游戏的主持人。请用第二人称"你"描述场景和事件。';
 
         // ============================================================
         //  全局状态
@@ -730,8 +688,6 @@
         let selectMode = false;
         let selectedIndices = new Set();
         let isCloudReady = false;
-        let cloudApp = null;
-        let currentUser = null;
 
         // ============================================================
         //  DOM 引用
@@ -744,7 +700,6 @@
         const statusTip = document.getElementById('statusTip');
         const toast = document.getElementById('toast');
         const sessionBar = document.getElementById('sessionBar');
-        const newSessionBtn = document.getElementById('newSessionBtn');
         const toggleBtn = document.getElementById('toggleCollapseBtn');
         const collapsibleSection = document.getElementById('collapsibleSection');
         const syncBadge = document.getElementById('syncBadge');
@@ -762,6 +717,7 @@
         const selectAllCheckbox = document.getElementById('selectAllCheckbox');
         const selectedCount = document.getElementById('selectedCount');
         const copySelectedBtn = document.getElementById('copySelectedBtn');
+        const newSessionBtn = document.getElementById('newSessionBtn');
 
         // ============================================================
         //  Toast
@@ -778,7 +734,27 @@
         }
 
         // ============================================================
-        //  折叠功能
+        //  ✅ 自检函数：强制启用输入框
+        // ============================================================
+        function forceEnableInput() {
+            console.log('🔧 执行自检修复...');
+            if (userInput) {
+                userInput.disabled = false;
+                userInput.style.opacity = '1';
+                userInput.style.pointerEvents = 'auto';
+                console.log('✅ 输入框已强制启用');
+            }
+            if (sendBtn) {
+                sendBtn.disabled = false;
+                console.log('✅ 发送按钮已强制启用');
+            }
+            if (userInput) {
+                userInput.focus();
+            }
+        }
+
+        // ============================================================
+        //  折叠
         // ============================================================
         toggleBtn.addEventListener('click', function() {
             isCollapsed = !isCollapsed;
@@ -794,31 +770,27 @@
         });
 
         // ============================================================
-        //  云端同步
+        //  云端
         // ============================================================
+        const ENV_ID = 'deepseek-chat-d5gg0748z3b9dfe24';
+
         async function initCloud() {
             try {
-                cloudApp = cloudbase.init({ env: ENV_ID });
-                const auth = cloudApp.auth();
+                const app = cloudbase.init({ env: ENV_ID });
+                const auth = app.auth();
                 const loginState = await auth.getLoginState();
-
                 if (!loginState) {
                     await auth.anonymousAuthProvider().signIn();
                 }
-
-                currentUser = await auth.getLoginState();
-                if (currentUser) {
-                    isCloudReady = true;
-                    syncBadge.textContent = '☁️ 云端';
-                    syncBadge.className = 'sync-badge';
-                    document.getElementById('syncText').textContent = '已同步';
-                    document.getElementById('syncDot').className = 'sync-dot';
-                    console.log('✅ 云端连接成功，用户:', currentUser.uid);
-                    return true;
-                }
-                return false;
+                isCloudReady = true;
+                syncBadge.textContent = '☁️ 云端';
+                syncBadge.className = 'sync-badge';
+                document.getElementById('syncText').textContent = '已同步';
+                document.getElementById('syncDot').className = 'sync-dot';
+                console.log('✅ 云端连接成功');
+                return true;
             } catch (e) {
-                console.warn('⚠️ 云端连接失败:', e);
+                console.warn('⚠️ 云端离线');
                 syncBadge.textContent = '📡 离线';
                 syncBadge.className = 'sync-badge offline';
                 document.getElementById('syncText').textContent = '离线模式';
@@ -829,77 +801,8 @@
         }
 
         // ============================================================
-        //  云端数据操作
+        //  数据管理（精简版）
         // ============================================================
-        const COLLECTION_NAME = 'sessions';
-
-        async function saveSessionsToCloud(sessionsData) {
-            if (!isCloudReady || !currentUser) return false;
-
-            try {
-                const db = cloudApp.database();
-                const collection = db.collection(COLLECTION_NAME);
-
-                await collection.where({
-                    userId: currentUser.uid
-                }).remove();
-
-                if (sessionsData.length > 0) {
-                    const batch = sessionsData.map(s => ({
-                        userId: currentUser.uid,
-                        sessionId: s.id,
-                        name: s.name || '新对话',
-                        messages: s.messages || [],
-                        updatedAt: new Date().toISOString()
-                    }));
-                    await collection.add(batch);
-                }
-
-                console.log('✅ 数据已同步到云端');
-                return true;
-            } catch (e) {
-                console.error('❌ 云端保存失败:', e);
-                return false;
-            }
-        }
-
-        async function loadSessionsFromCloud() {
-            if (!isCloudReady || !currentUser) return null;
-
-            try {
-                const db = cloudApp.database();
-                const collection = db.collection(COLLECTION_NAME);
-                const result = await collection.where({
-                    userId: currentUser.uid
-                }).get();
-
-                if (result.data && result.data.length > 0) {
-                    const loaded = result.data.map(item => ({
-                        id: item.sessionId,
-                        name: item.name || '新对话',
-                        messages: item.messages || []
-                    }));
-                    console.log('✅ 从云端加载了', loaded.length, '个会话');
-                    return loaded;
-                }
-                return null;
-            } catch (e) {
-                console.error('❌ 云端加载失败:', e);
-                return null;
-            }
-        }
-
-        // ============================================================
-        //  数据管理（本地 + 云端）
-        // ============================================================
-        async function syncSessions() {
-            saveSessionsToLocal();
-
-            if (isCloudReady && currentUser) {
-                await saveSessionsToCloud(sessions);
-            }
-        }
-
         function generateId() {
             return Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 4);
         }
@@ -946,25 +849,6 @@
             }
         }
 
-        async function loadAllData() {
-            if (isCloudReady && currentUser) {
-                var cloudData = await loadSessionsFromCloud();
-                if (cloudData && cloudData.length > 0) {
-                    sessions = cloudData;
-                    var savedCurrent = localStorage.getItem('deepseek_current_session');
-                    if (savedCurrent && sessions.some(s => s.id === savedCurrent)) {
-                        currentSessionId = savedCurrent;
-                    } else {
-                        currentSessionId = sessions[0].id;
-                    }
-                    saveSessionsToLocal();
-                    return;
-                }
-            }
-
-            loadSessionsFromLocal();
-        }
-
         function getCurrentSession() {
             for (var i = 0; i < sessions.length; i++) {
                 if (sessions[i].id === currentSessionId) return sessions[i];
@@ -999,7 +883,7 @@
                 currentSessionId = sessions[0].id;
                 localStorage.setItem('deepseek_current_session', currentSessionId);
             }
-            syncSessions();
+            saveSessionsToLocal();
             renderSessionTabs();
             renderChat();
             showToast('已删除');
@@ -1010,7 +894,7 @@
             var s = createSession('新对话');
             sessions.push(s);
             currentSessionId = s.id;
-            syncSessions();
+            saveSessionsToLocal();
             renderSessionTabs();
             renderChat();
             renameInput.value = s.name || '';
@@ -1024,13 +908,13 @@
             var trimmed = newName.trim();
             if (!trimmed) { showToast('请输入有效名称'); return; }
             session.name = trimmed;
-            syncSessions();
+            saveSessionsToLocal();
             renderSessionTabs();
             showToast('✅ 已重命名为: ' + trimmed);
         }
 
         // ============================================================
-        //  渲染会话标签
+        //  渲染
         // ============================================================
         function renderSessionTabs() {
             sessionBar.innerHTML = '';
@@ -1065,9 +949,6 @@
             sessionBar.appendChild(addBtn);
         }
 
-        // ============================================================
-        //  渲染聊天
-        // ============================================================
         function renderChat() {
             var session = getCurrentSession();
             chatBox.innerHTML = '';
@@ -1088,9 +969,6 @@
             chatBox.scrollTop = chatBox.scrollHeight;
         }
 
-        // ============================================================
-        //  启用聊天
-        // ============================================================
         function enableChat(enabled) {
             userInput.disabled = !enabled;
             sendBtn.disabled = !enabled;
@@ -1103,7 +981,7 @@
         }
 
         // ============================================================
-        //  保存 API Key
+        //  API Key
         // ============================================================
         saveKeyBtn.addEventListener('click', function() {
             var key = apiKeyInput.value.trim();
@@ -1123,13 +1001,14 @@
             } else {
                 session.messages.push({ role: 'assistant', content: '✅ API Key 已更新！' });
             }
-            syncSessions();
+            saveSessionsToLocal();
             renderChat();
             showToast('✅ API Key 已保存');
+            forceEnableInput(); // 自检
         });
 
         // ============================================================
-        //  复制功能
+        //  复制导出
         // ============================================================
         function getAllText() {
             var session = getCurrentSession();
@@ -1192,9 +1071,6 @@
             copyToClipboard(text || '没有内容');
         });
 
-        // ============================================================
-        //  导出功能
-        // ============================================================
         exportBtn.addEventListener('click', function() {
             var text = getAllText();
             if (!text) { showToast('没有内容可导出'); return; }
@@ -1262,7 +1138,7 @@
         }
 
         // ============================================================
-        //  📤 发送消息（核心 —— 已包含 SYSTEM_PROMPT）
+        //  📤 发送消息
         // ============================================================
         async function sendMessage() {
             var msg = userInput.value.trim();
@@ -1275,7 +1151,7 @@
 
             session.messages.push({ role: 'user', content: msg });
             userInput.value = '';
-            syncSessions();
+            saveSessionsToLocal();
             renderChat();
 
             session.messages.push({ role: 'loading', content: '🤔 思考中...' });
@@ -1284,7 +1160,6 @@
 
             try {
                 var maxTokens = parseInt(maxTokensSlider.value) || 2048;
-                // 获取历史消息（不包括 loading 和 error）
                 var history = [];
                 for (var i = 0; i < session.messages.length; i++) {
                     var m = session.messages[i];
@@ -1302,7 +1177,6 @@
                     body: JSON.stringify({
                         model: 'deepseek-v4-flash',
                         messages: [
-                            // ✅ 关键修复：第一条必须是 System Prompt！
                             { role: 'system', content: SYSTEM_PROMPT },
                             ...history
                         ],
@@ -1331,7 +1205,7 @@
                     if (session.name === '新对话' && session.messages.length > 0) {
                         session.name = getSessionName(session.messages);
                     }
-                    syncSessions();
+                    saveSessionsToLocal();
                     renderChat();
                     renderSessionTabs();
                     console.log('✅ 回复成功');
@@ -1357,12 +1231,13 @@
                     errorText = '❌ 网络连接失败';
                 }
                 session.messages.push({ role: 'error', content: errorText });
-                syncSessions();
+                saveSessionsToLocal();
                 renderChat();
                 console.error('❌ 错误:', error);
             } finally {
                 sendBtn.disabled = false;
                 userInput.focus();
+                forceEnableInput(); // 每次发送完都强制启用，防止卡死
             }
         }
 
@@ -1370,57 +1245,68 @@
         //  事件绑定
         // ============================================================
         sendBtn.addEventListener('click', sendMessage);
+
         userInput.addEventListener('keydown', function(e) {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
                 sendBtn.click();
             }
         });
+
         userInput.addEventListener('input', function() {
             this.style.height = 'auto';
             this.style.height = Math.min(this.scrollHeight, 100) + 'px';
         });
+
         newSessionBtn.addEventListener('click', addNewSession);
 
         // ============================================================
-        //  初始化
+        //  🚀 初始化
         // ============================================================
         async function init() {
-            await initCloud();
-            await loadAllData();
+            console.log('🚀 自检版启动...');
 
+            // 1. 加载数据
+            loadSessionsFromLocal();
             renderSessionTabs();
 
             var session = getCurrentSession();
             renameInput.value = session.name || '';
 
+            // 2. API Key
             if (API_KEY) {
                 apiKeyInput.value = API_KEY;
                 enableChat(true);
                 if (session.messages.length === 0) {
                     session.messages.push({ role: 'assistant', content: '👋 你好！API Key 已加载。' });
-                    syncSessions();
+                    saveSessionsToLocal();
                 }
                 renderChat();
-                console.log('✅ 已加载 API Key');
+                console.log('✅ API Key 已加载');
             } else {
                 if (session.messages.length === 0) {
                     session.messages.push({ role: 'assistant', content: '👋 请输入 API Key 并保存。' });
-                    syncSessions();
+                    saveSessionsToLocal();
                 }
                 renderChat();
                 apiKeyInput.focus();
             }
 
-            console.log('🚀 index6 云端同步版已启动！');
-            console.log('☁️ 云端状态:', isCloudReady ? '已连接' : '离线');
-            console.log('🎭 当前 System Prompt:', SYSTEM_PROMPT.substring(0, 50) + '...');
+            // 3. 云端（不阻塞）
+            initCloud();
+
+            // 4. ⭐ 自检：强制启用输入框
+            forceEnableInput();
+
+            console.log('✅ 初始化完成，输入框状态:', userInput.disabled ? '禁用' : '启用');
         }
 
         init();
 
+        // 暴露全局
         window.sendMessage = sendMessage;
         window.SYSTEM_PROMPT = SYSTEM_PROMPT;
+        window.forceEnableInput = forceEnableInput;
     </script>
 </body>
 </html>
