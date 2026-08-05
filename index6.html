@@ -710,6 +710,12 @@
 
     <script>
         // ============================================================
+        //  🎭 【文游角色设定】—— 在这里修改你的角色设定！
+        //  每次对话都会自动带上这个设定，AI 会按这个角色回复。
+        //  修改后保存即可生效，不用翻到下面找代码。
+        // ============================================================
+        const SYSTEM_PROMPT = '你是一个沉浸式文字游戏的主持人。请用第二人称"你"描述场景和事件。
+        // ============================================================
         //  腾讯云开发配置
         // ============================================================
         const ENV_ID = 'deepseek-chat-d5gg0748z3b9dfe24';
@@ -834,12 +840,10 @@
                 const db = cloudApp.database();
                 const collection = db.collection(COLLECTION_NAME);
 
-                // 删除用户所有旧数据
                 await collection.where({
                     userId: currentUser.uid
                 }).remove();
 
-                // 批量插入新数据
                 if (sessionsData.length > 0) {
                     const batch = sessionsData.map(s => ({
                         userId: currentUser.uid,
@@ -891,7 +895,6 @@
         async function syncSessions() {
             saveSessionsToLocal();
 
-            // 如果有云端，同步到云端
             if (isCloudReady && currentUser) {
                 await saveSessionsToCloud(sessions);
             }
@@ -944,7 +947,6 @@
         }
 
         async function loadAllData() {
-            // 先尝试从云端加载
             if (isCloudReady && currentUser) {
                 var cloudData = await loadSessionsFromCloud();
                 if (cloudData && cloudData.length > 0) {
@@ -960,7 +962,6 @@
                 }
             }
 
-            // 云端无数据，从本地加载
             loadSessionsFromLocal();
         }
 
@@ -1261,7 +1262,7 @@
         }
 
         // ============================================================
-        //  发送消息
+        //  📤 发送消息（核心 —— 已包含 SYSTEM_PROMPT）
         // ============================================================
         async function sendMessage() {
             var msg = userInput.value.trim();
@@ -1283,6 +1284,14 @@
 
             try {
                 var maxTokens = parseInt(maxTokensSlider.value) || 2048;
+                // 获取历史消息（不包括 loading 和 error）
+                var history = [];
+                for (var i = 0; i < session.messages.length; i++) {
+                    var m = session.messages[i];
+                    if (m.role === 'user' || m.role === 'assistant') {
+                        history.push({ role: m.role, content: m.content });
+                    }
+                }
 
                 var response = await fetch('https://api.deepseek.com/chat/completions', {
                     method: 'POST',
@@ -1293,11 +1302,12 @@
                     body: JSON.stringify({
                         model: 'deepseek-v4-flash',
                         messages: [
-                            { role: 'system', content: '你是DeepSeek，一个有用的AI助手。请用中文简洁回复。' },
-                            { role: 'user', content: msg }
+                            // ✅ 关键修复：第一条必须是 System Prompt！
+                            { role: 'system', content: SYSTEM_PROMPT },
+                            ...history
                         ],
                         max_tokens: maxTokens,
-                        temperature: 0.7
+                        temperature: 0.8
                     })
                 });
 
@@ -1305,8 +1315,8 @@
                 console.log('📥 响应:', data);
 
                 var newMsgs = [];
-                for (var i = 0; i < session.messages.length; i++) {
-                    if (session.messages[i].role !== 'loading') newMsgs.push(session.messages[i]);
+                for (var j = 0; j < session.messages.length; j++) {
+                    if (session.messages[j].role !== 'loading') newMsgs.push(session.messages[j]);
                 }
                 session.messages = newMsgs;
 
@@ -1331,8 +1341,8 @@
 
             } catch (error) {
                 var newMsgs2 = [];
-                for (var j = 0; j < session.messages.length; j++) {
-                    if (session.messages[j].role !== 'loading') newMsgs2.push(session.messages[j]);
+                for (var k = 0; k < session.messages.length; k++) {
+                    if (session.messages[k].role !== 'loading') newMsgs2.push(session.messages[k]);
                 }
                 session.messages = newMsgs2;
 
@@ -1376,10 +1386,7 @@
         //  初始化
         // ============================================================
         async function init() {
-            // 先初始化云端
             await initCloud();
-
-            // 加载数据（优先从云端）
             await loadAllData();
 
             renderSessionTabs();
@@ -1407,11 +1414,13 @@
 
             console.log('🚀 index6 云端同步版已启动！');
             console.log('☁️ 云端状态:', isCloudReady ? '已连接' : '离线');
+            console.log('🎭 当前 System Prompt:', SYSTEM_PROMPT.substring(0, 50) + '...');
         }
 
         init();
 
         window.sendMessage = sendMessage;
+        window.SYSTEM_PROMPT = SYSTEM_PROMPT;
     </script>
 </body>
 </html>
